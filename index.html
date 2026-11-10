@@ -822,6 +822,15 @@ select option{background:#0B1A3D;color:#fff}
 .wat{position:absolute;right:10px;bottom:4px;font-size:10.5px;color:#9FD8C9}
 .nfy .rks{margin-bottom:6px}
 .nfy .fld{margin:10px 0}
+/* selector de dibujo de categorías */
+.icp{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 6px}
+.icp label{position:relative;cursor:pointer}
+.icp input{position:absolute;opacity:0;inset:0}
+.icp span{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:12px;border:1.5px solid rgba(120,150,210,.28);background:rgba(255,255,255,.04);transition:.15s}
+.icp i{width:56px;height:40px;display:block;font-style:normal}.icp i svg{width:100%;height:100%}
+.icp em{font:600 11.5px/1.2 var(--f-body,inherit);font-style:normal;opacity:.85}
+.icp input:checked+span{border-color:#0091FA;background:rgba(0,145,250,.14);box-shadow:0 0 0 3px rgba(0,145,250,.18)}
+.icp input:focus-visible+span{outline:2px solid #0091FA;outline-offset:2px}
 
 </style>
 </head>
@@ -919,6 +928,7 @@ function art(t,c){
   return `<svg viewBox="0 0 160 110" role="img" aria-label="Ilustración del producto">${s}</svg>`;
 }
 const CATART={'Portátiles':'laptop','Móviles':'phone','Audio':'headphones','Periféricos':'keyboard','Monitores':'monitor','Tablets':'tablet','Relojes':'watch','Almacenamiento':'ssd'};
+const ART_OPTS=[['phone','Celular'],['tablet','Tablet'],['watch','Reloj'],['laptop','Portátil'],['headphones','Audio'],['keyboard','Teclado'],['mouse','Mouse'],['monitor','Monitor'],['ssd','Disco / USB']];
 const CATS=['Móviles','Tablets','Relojes','Portátiles','Audio','Periféricos','Monitores','Almacenamiento'];
 const TINTS=['radial-gradient(circle at 50% 38%,#0F4DB0,#071C4A 72%)','radial-gradient(circle at 50% 38%,#0A3D93,#061538 72%)','radial-gradient(circle at 50% 38%,#0C57C4,#08224F 72%)','radial-gradient(circle at 50% 38%,#0A47A0,#050F2E 72%)'];
 const AITINTS=['radial-gradient(circle at 30% 25%,#35C4FF,#0A3D93 55%,#050F2E)','radial-gradient(circle at 70% 30%,#7A5CFF,#1B2E8F 55%,#050F2E)','radial-gradient(circle at 50% 20%,#2EE6C5,#0A5C8F 55%,#050F2E)','radial-gradient(circle at 25% 70%,#FF7AB6,#4B2E9A 55%,#050F2E)','radial-gradient(circle at 60% 60%,#FFB84A,#9A3F1B 55%,#1A0B20)'];
@@ -1330,7 +1340,7 @@ function renderShop(){
   $('#v-shop').innerHTML=`<canvas class="net bgnet" data-c="light"></canvas>
   <header class="s-head"><div class="wrap">${logo('bienvenida',30,'HB')}
    <div class="search">${ic('search')}<input id="q" type="text" placeholder="Busca portátiles, audífonos, monitores" aria-label="Buscar productos" value="${esc(S.q)}"></div>
-   <div class="push"><button class="lnk" data-act="cita">Showroom</button><a class="lnk" href="#panel" data-act="go:panel">Panel</a><button class="cartbtn" data-act="cart" aria-label="Abrir carrito">${ic('cart')}<span>Carrito</span><span class="cnt" id="cnt">${cartCount()}</span></button></div></div></header>
+   <div class="push"><button class="lnk" data-act="cita">Showroom</button>${(!PROD||S.user)?'<a class="lnk" href="#panel" data-act="go:panel">Panel</a>':''}<button class="cartbtn" data-act="cart" aria-label="Abrir carrito">${ic('cart')}<span>Carrito</span><span class="cnt" id="cnt">${cartCount()}</span></button></div></div></header>
   ${ticker()}${vribbon()}
   <main class="shopm"><div class="wrap">${heroHTML()}${trustHTML()}${combosHTML()}
    ${premBand()}
@@ -1640,8 +1650,9 @@ function tPedidos(){return head('Pedidos','Toca un pedido para cobrarlo, generar
 
 /* --- productos --- */
 function tProductos(){
-  const sub=[['lista','Productos'],['combos','Combos'],['oferta','Oferta del día']];
+  const sub=[['lista','Productos'],['cats','Categorías'],['combos','Combos'],['oferta','Oferta del día']];
   const nav=`<div class="subtabs">${sub.map(s=>`<button class="chip ${S.ptab===s[0]?'on':''}" data-act="ptab:${s[0]}">${s[1]}</button>`).join('')}</div>`;
+  if(S.ptab==='cats')return head('Categorías','Las categorías aparecen como botones en la tienda. Puedes cambiarles el nombre y el dibujo, crear nuevas o eliminar las que no uses.')+nav+tCats();
   if(S.ptab==='combos')return head('Combos','Agrupa productos con un descuento. En la tienda se aplica solo cuando el cliente tiene todos en el carrito.')+nav+tCombos();
   if(S.ptab==='oferta')return head('Oferta del día','Elige un producto y su descuento. Se destaca en el carrusel de la tienda con cuenta regresiva hasta la medianoche.')+nav+tOferta();
   const used=S.products.length;
@@ -1651,6 +1662,39 @@ function tProductos(){
    <div class="rt"><div class="step-q"><button data-act="stock:${p.id}:-1" aria-label="Restar stock">−</button><span>${p.stock}</span><button data-act="stock:${p.id}:1" aria-label="Sumar stock">+</button></div>
    <select class="stsel" data-st="${p.id}" aria-label="Estado de ${esc(p.n)}"><option value="activo" ${p.st==='activo'?'selected':''}>Activo</option><option value="borrador" ${p.st==='borrador'?'selected':''}>Borrador</option><option value="inactivo" ${p.st==='inactivo'?'selected':''}>Inactivo</option></select>
    <button class="btn sm alt" data-act="editp:${p.id}">Editar</button></div></div>`).join('')}</div>`;
+}
+
+/* ===== categorías editables ===== */
+const catN=n=>S.products.filter(p=>p.cat===n).length;
+function tCats(){
+  return `<div class="card box">${CATS.map((c,i)=>`<div class="row"><div class="l" style="display:flex;align-items:center;gap:12px"><span style="width:44px;height:44px;flex:none;display:grid;place-items:center">${art(CATART[c]||'ssd')}</span><div><b>${esc(c)}</b><small>${catN(c)} producto${catN(c)===1?'':'s'}</small></div></div>
+   <div class="rt"><button class="btn sm alt" data-act="editcat:${i}">Editar</button><button class="btn sm alt" data-act="delcat:${i}">Eliminar</button></div></div>`).join('')}</div>
+  <button class="btn sig" data-act="editcat:-1" style="margin-top:14px">${ic('plus')} Nueva categoría</button>`;
+}
+function openCat(i){
+  const c=i>=0?CATS[i]:'',a=i>=0?(CATART[c]||'ssd'):'phone';
+  modal(i>=0?'Editar categoría':'Nueva categoría',`<form id="f-cat" data-i="${i}">
+   <div class="fld"><label for="ct-n">Nombre de la categoría</label><input id="ct-n" type="text" maxlength="24" value="${esc(c)}" placeholder="Ej: Cámaras" required></div>
+   <span class="lbl">Dibujo que se muestra</span>
+   <div class="icp">${ART_OPTS.map(([k,l])=>`<label><input type="radio" name="ct-a" value="${k}" ${k===a?'checked':''}><span><i>${art(k)}</i><em>${l}</em></span></label>`).join('')}</div>
+   <p class="hint" id="ct-err" style="color:#FF8A8A"></p></form>`,
+   {foot:'<button class="btn alt" data-act="close">Cancelar</button><button class="btn sig" type="submit" form="f-cat">Guardar</button>'});
+}
+function saveCat(f){
+  const i=+f.dataset.i,n=$('#ct-n').value.replace(/[:|]/g,'').trim(),a=(f.querySelector('input[name=ct-a]:checked')||{}).value||'ssd';
+  if(!n){$('#ct-err').textContent='Escribe el nombre de la categoría.';return}
+  if(CATS.some((c,k)=>k!==i&&c.toLowerCase()===n.toLowerCase())){$('#ct-err').textContent='Ya existe una categoría con ese nombre.';return}
+  if(i>=0){
+    const old=CATS[i];CATS[i]=n;delete CATART[old];CATART[n]=a;
+    S.products.forEach(p=>{if(p.cat===old)p.cat=n;if(p.cat===n&&!p.custom)p.art=a});
+    if(S.cat===old)S.cat=n;
+  }else{CATS.push(n);CATART[n]=a}
+  closeModal();rp();toast('Categoría guardada');
+}
+function delCat(i){
+  const c=CATS[i],k=catN(c);
+  if(k){modal('No se puede eliminar todavía',`<p>La categoría <b>${esc(c)}</b> tiene ${k} producto${k===1?'':'s'}.</p><p style="margin-top:8px">Primero cámbialos a otra categoría (Productos > Editar) o desactívalos, y luego la eliminas.</p>`,{foot:'<button class="btn sig" data-act="close">Entendido</button>'});return}
+  modal('Eliminar categoría',`<p>¿Eliminar <b>${esc(c)}</b>? Dejará de aparecer en la tienda.</p>`,{foot:`<button class="btn alt" data-act="close">Cancelar</button><button class="btn sig" data-act="delcat2:${i}">Sí, eliminar</button>`});
 }
 function tCombos(){
   return `<div class="card box">${S.combos.map((c,i)=>{const tot=c.ids.reduce((a,id)=>a+(P(id)?P(id).price:0),0);return `<div class="row"><div class="l"><b>${esc(c.n)}</b><small>${c.ids.map(id=>P(id)?esc(P(id).n):'').join(' + ')}</small><small class="num">Precio normal ${money(tot)} · descuento ${c.pct}% · ahorra ${money(Math.round(tot*c.pct/100))}</small></div>
@@ -2039,6 +2083,9 @@ document.addEventListener('click',e=>{
    case 'tabm':closeModal();S.tab=x;rp();break;
    case 'more':openMore();break;
    case 'ptab':S.ptab=x;rp();break;
+   case 'editcat':openCat(+x);break;
+   case 'delcat':delCat(+x);break;
+   case 'delcat2':{const c=CATS[+x];if(c&&!catN(c)){CATS.splice(+x,1);delete CATART[c];if(S.cat===c)S.cat='Todo'}closeModal();rp();toast('Categoría eliminada');break}
    case 'order':openOrder(+x);break;
    case 'paid':{const o=S.orders.find(k=>k.id===+x);o.paid=true;openOrder(o.id);rp();break}
    case 'ship':{const o=S.orders.find(k=>k.id===+x);o.ship=o.ship==='Por despachar'?'Enviado':'Entregado';openOrder(o.id);rp();break}
@@ -2102,6 +2149,7 @@ document.addEventListener('submit',e=>{
     if(!u||u.pass!==$('#l-p').value){$('#l-err').textContent='Correo o contraseña incorrectos. Revisa los datos de prueba de abajo.';return}
     S.user={email:em,name:u.name,admin:!!u.admin,vendor:u.vendor||null};S.tab='resumen';saveSession(em,$('#l-r').checked);S.anim=true;rp(true);
   }else if(f.id==='f-prod'){if(PROD)uploadMedia().then(()=>saveProd(f)).catch(()=>toast('No pudimos subir las fotos. Revisa tu conexión e inténtalo de nuevo.'));else saveProd(f)}
+  else if(f.id==='f-cat')saveCat(f);
   else if(f.id==='f-guia'){const o=S.orders.find(k=>k.id===+f.dataset.o);o.guia=$('#g-n').value.trim();o.carrier=$('#g-c').value;closeModal();openOrder(o.id);rp();toast('Guía guardada')}
   else if(f.id==='f-vend'){
     const code=$('#vn-c').value.trim().toLowerCase(),em=$('#vn-e').value.trim().toLowerCase();
@@ -2226,6 +2274,7 @@ async function loadPublic(){
   if(M.products)S.products=M.products.map(p=>({...p,stock:stock[p.id]==null?0:stock[p.id]}));
   lastStock={};S.products.forEach(p=>lastStock[p.id]=p.stock);
   if(M.combos)S.combos=M.combos;if(M.deal)S.deal=M.deal;if(M.coupons)S.coupons=M.coupons;if(M.cities)S.cities=M.cities;
+  if(Array.isArray(M.cats)&&M.cats.length){CATS.length=0;Object.keys(CATART).forEach(k=>delete CATART[k]);M.cats.forEach(c=>{CATS.push(c.n);CATART[c.n]=c.a})}
   if(M.shop)deepAssign(S.settings,M.shop);
   if(M.vendors)S.vendors=M.vendors.map(v=>({...v,prices:((M.vprices||{})[v.code])||{}}));
 }
@@ -2251,7 +2300,7 @@ const H={};let busy=false;
 function slices(){
   const {pub,sec}=splitSettings(),vf={};S.vendors.forEach(v=>{if(v.email)vf[v.code]={email:v.email}});
   return {
-    products:{pub:true,v:S.products.map(({stock,...p})=>p)},combos:{pub:true,v:S.combos},deal:{pub:true,v:S.deal},coupons:{pub:true,v:S.coupons},cities:{pub:true,v:S.cities},
+    products:{pub:true,v:S.products.map(({stock,...p})=>p)},combos:{pub:true,v:S.combos},deal:{pub:true,v:S.deal},coupons:{pub:true,v:S.coupons},cities:{pub:true,v:S.cities},cats:{pub:true,v:CATS.map(n=>({n,a:CATART[n]||'ssd'}))},
     shop:{pub:true,v:pub},vendors:{pub:true,v:S.vendors.map(({prices,email,...v})=>v)},
     secrets:{pub:false,v:sec},vendors_full:{pub:false,v:vf}
   };
