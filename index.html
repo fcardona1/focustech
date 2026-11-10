@@ -898,6 +898,8 @@ button.avatar:hover{transform:scale(1.07);box-shadow:0 0 0 4px rgba(0,145,250,.2
 .pfpic{width:92px;height:92px;flex:none;border-radius:50%;overflow:hidden;background:var(--g,linear-gradient(135deg,#0057D9,#0091FA));border:2px solid rgba(160,215,255,.6);display:grid;place-items:center;box-shadow:0 10px 26px -8px rgba(0,145,250,.55)}
 .pfpic img{width:100%;height:100%;object-fit:cover}.pfpic b{font:800 36px var(--f-body);color:#fff}
 .pfbt{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.pfbt small{flex-basis:100%;opacity:.7;font-size:12px}
+textarea{resize:vertical;line-height:1.5;min-height:110px}
+.specs li{white-space:pre-line;overflow-wrap:anywhere}
 
 </style>
 </head>
@@ -1033,6 +1035,9 @@ const CITIES=[
 const cityInfo=n=>CITIES.find(c=>c.n===n)||CITIES[CITIES.length-1];
 
 /* ===== estado ===== */
+/* Especificaciones: texto libre (con emojis). Cada renglón nuevo es un punto aparte. Los productos viejos con ' / ' se siguen leyendo igual. */
+const specLines=t=>{t=String(t||'').trim();const a=t.includes('\n')?t.split(/\r?\n/):t.includes(' / ')?t.split(' / '):[t];return a.map(x=>x.trim()).filter(Boolean)};
+const specShort=(t,n)=>specLines(t).slice(0,n).join(' · ');
 const mk=(id,n,b,spec,price,stock,cat,art,t,w,ws)=>({id,n,b,spec,price,stock,cat,art,tint:TINTS[t],st:'activo',w,ws:ws||null,colors:(COLORS[art]||[]).map(c=>({...c}))});
 const S={
  plan:'pro', cat:'Todo', q:'', sort:'rel', cart:[], coupon:null, city:'Cali', sel:{}, draft:{},
@@ -1299,7 +1304,7 @@ function slideReal(){
 }
 function slideDeal(){
   const p=P(S.deal.id),i=S.sel[p.id]||0;
-  return `<div class="sl-tx"><span class="tag solid">${ic('bolt')} Oferta del día</span><h2>${esc(p.n)}</h2><p class="sl-sp">${esc(p.spec.split(' / ').slice(0,3).join(' · '))}</p>
+  return `<div class="sl-tx"><span class="tag solid">${ic('bolt')} Oferta del día</span><h2>${esc(p.n)}</h2><p class="sl-sp">${esc(specShort(p.spec,3))}</p>
    <p class="dpr"><s>${money(p.price)}</s><b class="num">${money(eff(p))}</b><span class="pill info">−${S.deal.pct}%</span></p>${cdHTML()}
    <div class="cta"><button class="btn sig" data-act="add:${p.id}" ${p.stock<=0?'disabled':''}>${p.stock<=0?'Agotado':'Aprovechar oferta'}</button><button class="btn alt-d" data-act="open:${p.id}">Ver detalles</button></div></div>
    <div class="sl-art"><div class="bigart" style="background:${p.tint}">${artP(p,i)}</div></div>`;
@@ -1428,7 +1433,7 @@ function cardHTML(p,hot){
   return `<article class="pc ${out?'off':''}" data-pid="${p.id}"><div class="tile" style="background:${p.tint}" data-act="open:${p.id}">${tileArt(p,i)}${badge}<button class="shb" data-act="share:${p.id}" aria-label="Compartir ${esc(p.n)}">${ic('share')}</button></div>
   <div class="bd"><span class="br">${esc(p.b)}</span><span class="nm" data-act="open:${p.id}">${esc(p.n)}</span>
   ${cs.length>1?`<div class="sw2" role="group" aria-label="Colores disponibles">${cs.map((c,k)=>`<button class="dot ${k===i?'on':''}" style="--c:${c.h}" data-act="col:${p.id}:${k}" aria-label="Color ${esc(c.n)}" title="${esc(c.n)}"></button>`).join('')}<small>${esc(cs[i].n)}</small></div>`:''}
-  <span class="sp">${esc(p.spec.split(' / ').slice(0,2).join(' · '))}</span>
+  <span class="sp">${esc(specShort(p.spec,2))}</span>
   <span class="wch">${ic('shield')} ${p.prem?'Original · ':''}Garantía ${wtxt(p.w)}</span>
   <span class="pr num">${priceHTML(p)}</span>
   ${wsOn()&&p.ws?`<span class="wsn">${ic('tag')} ${p.ws.min}+ uds: ${money(p.ws.price)}</span>`:''}
@@ -1460,7 +1465,7 @@ function openProduct(id){
    <p class="num bigp">${w?`<s>${money(w)}</s>`:''}<b>${money(eff(p))}</b>${o>0?`<span class="dsc lg">−${o}%</span>`:''}</p>
    ${w?`<p class="savep">${ic('tag')} Ahorras ${money(w-eff(p))} frente al precio anterior</p>`:''}
    ${wsOn()&&p.ws?`<p class="wsn big">${ic('tag')} Compra por mayor: desde ${p.ws.min} unidades a ${money(p.ws.price)} c/u</p>`:''}
-   <ul class="specs">${p.spec.split(' / ').map(s=>`<li>${esc(s)}</li>`).join('')}<li>${ic('shield')} Garantía directa de ${wtxt(p.w)}</li></ul>
+   <ul class="specs">${specLines(p.spec).map(s=>`<li>${esc(s)}</li>`).join('')}<li>${ic('shield')} Garantía directa de ${wtxt(p.w)}</li></ul>
    <p>${out?'<span class="pill dark">Agotado</span>':p.stock<=3?`<span class="pill warn">Quedan ${p.stock}</span>`:`<span class="pill ok">${p.stock} disponibles</span>`}</p>`+relHTML(p),
    {foot:`<button class="btn alt" data-act="close">Cancelar</button><button class="btn alt" data-act="share:${p.id}">${ic('share')} Compartir</button><a class="btn alt" target="_blank" rel="noopener" data-act="ask:${p.id}" href="https://wa.me/${waNum()}?text=${encodeURIComponent('Hola, quiero información de: '+p.n)}">${ic('wa')} Preguntar</a><button class="btn sig" data-act="add:${p.id}" ${out?'disabled':''}>${ic('cart')} Agregar al carrito</button>`});
 }
@@ -1949,7 +1954,7 @@ function openProd(id){
    <div class="fld"><label for="p-n">Nombre</label><input id="p-n" type="text" value="${esc(p.n)}" required></div>
    <div class="fld"><label for="p-b">Marca</label><input id="p-b" type="text" value="${esc(p.b)}" required></div>
    <div class="fld"><label for="p-c">Categoría</label><select id="p-c">${CATS.map(c=>`<option ${c===p.cat?'selected':''}>${c}</option>`).join('')}</select></div>
-   <div class="fld"><label for="p-s">Especificaciones (separadas por /)</label><input id="p-s" type="text" value="${esc(p.spec)}" required></div>
+   <div class="fld"><label for="p-s">Descripción y especificaciones</label><textarea id="p-s" rows="5" maxlength="800" placeholder="Escríbelo como quieras, con emojis si quieres. Ej:\n📱 Pantalla AMOLED de 6.7&quot;\n🔋 Batería de 5000 mAh\n📸 Cámara de 50 MP">${esc(p.spec)}</textarea><small class="hint">Cada renglón nuevo se muestra como un punto aparte en la ficha del producto. Puedes pegar texto de otra parte.</small></div>
    <div class="fld"><label for="p-old">Precio anterior (opcional)</label><input id="p-old" type="number" min="0" step="1000" value="${p.old||''}" placeholder="Lo que costaba antes"></div>
    <div class="fld"><label for="p-pr">Precio de ahora en pesos</label><input id="p-pr" type="number" min="0" step="1000" value="${p.price}" required><small id="old-hint" class="hint"></small></div>
    <div class="fld"><label for="p-base">Precio base para vendedores ${proTag()}</label><input id="p-base" type="number" min="0" step="1000" ${lock} value="${p.base||''}" placeholder="${pro()?'Lo que le cobras al vendedor':'Disponible en Pro'}"><small class="hint">El vendedor pone su precio de venta, nunca menor a este. Lo que cobre de más es su ganancia. Vacío = no se ofrece a vendedores.</small></div>
