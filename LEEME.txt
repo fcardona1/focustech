@@ -1,0 +1,58 @@
+FOCUSTECH · TIENDA REAL (versión de producción)  ·  Desarrollado por Onytek
+=====================================================================
+
+Esta carpeta es la tienda + panel REAL. Es el mismo diseño aprobado, pero conectada a una base de datos (Supabase):
+los productos, pedidos, fotos, vendedores y avisos se guardan de verdad. Funciona como app instalable (PWA).
+
+PASO 1 · Crear el proyecto en Supabase (supabase.com)
+  1. New project > nombre "focustech" > elige una contraseña (guárdala) > región "South America (São Paulo)".
+  2. Abre SQL Editor > New query > pega TODO el archivo supabase.sql > Run. Debe decir "Success".
+  3. Authentication > Sign In / Providers > Email: DESACTIVA "Confirm email" (así los vendedores nuevos pueden entrar al instante).
+  4. Project Settings > API: copia "Project URL" y "anon public key".
+
+PASO 2 · Crear las cuentas
+  1. Authentication > Users > Add user > Create new user: correo y contraseña de Andrés (marca "Auto Confirm User"). Igual para Fabian.
+  2. SQL Editor: en el final de supabase.sql (PASO 2) quita los "--", pon el correo de Andrés y ejecuta. Así Andrés queda como dueño y Fabian como admin.
+
+PASO 3 · Conectar la tienda
+  1. Abre config.js, pega la url y la key (la "anon public"; NUNCA la "service_role") y guarda.
+  2. Sube la carpeta al repositorio (prototipos-onytek/focustech-web).
+
+PASO 4 · Publicar en Vercel
+  1. Vercel > Add New > Project > repositorio prototipos-onytek > Root Directory: focustech-web > Deploy.
+  2. Cuando Andrés pase el dominio: Project > Settings > Domains > Add y sigue los 2 registros DNS que te muestre (en Hostinger/Cloudflare, proxy apagado).
+
+PASO 5 · Primer ingreso de Andrés
+  Entra a  su-dominio.com/#panel  > Productos > Nuevo producto. Carga fotos, precios y stock.
+  En Pagos y envíos: escribe los datos de la cuenta para transferencias (sin eso, la opción Transferencia no aparece al comprar).
+  En Integraciones > Redes sociales: usuario de Instagram/TikTok/Facebook y el WhatsApp de ventas (sin eso no aparece el botón de WhatsApp).
+
+AVISOS DE PEDIDOS
+  Ya funciona: campana en el panel, etiqueta "Nuevo", contador en la pestaña y aviso del navegador (botón "Activar avisos en este dispositivo" en Integraciones). Con la app cerrada: ver la sección siguiente.
+  Correo y WhatsApp automáticos: se hacen con n8n. En n8n crea un flujo con nodo "Webhook" (POST), copia su URL y ejecuta en SQL:
+     insert into config(k,v) values ('webhook_url','URL-DE-N8N') on conflict (k) do update set v = excluded.v;
+  Cada pedido llega a n8n con el pedido completo y el texto listo (campo "msg"): conecta Zoho (correo) y, cuando Meta apruebe el número, WhatsApp Business.
+
+AVISOS AL CELULAR CON LA APP CERRADA (como una notificación de WhatsApp)
+  Ya está programado todo. Faltan 5 pasos de una sola vez, DESPUÉS del Paso 1 (Supabase creado y supabase.sql ejecutado):
+  A. Supabase > Edge Functions > Deploy a new function > nombre: push > pega el contenido de supabase/functions/push/index.ts > Deploy.
+     En esa función DESACTIVA "Verify JWT" (la protege una clave propia, paso B).
+  B. Supabase > Edge Functions > Secrets (Manage secrets) > agrega 3:  VAPID_PUBLIC, VAPID_PRIVATE y PUSH_SECRET
+     (los valores están en el archivo privado "claves-avisos-focustech.txt" que te entregó Claude; NO lo subas a GitHub).
+  C. SQL Editor: ejecuta las 2 líneas "PASO 4" del final de supabase.sql (cambia TU-PROYECTO por el de tu URL y pega la misma clave PUSH_SECRET).
+  D. En config.js ya está la llave pública (vapid). No la cambies.
+  E. Andrés abre la tienda en su celular, entra a /#panel > Integraciones > "Activar avisos en este dispositivo" > Permitir.
+     - Android (Chrome): funciona directo; mejor aún si la instala ("Instalar app" / "Agregar a pantalla de inicio").
+     - iPhone: primero Compartir > "Agregar a inicio", abrir la app desde ese ícono y ahí activar los avisos (iOS 16.4 o superior).
+     - Se puede activar en varios dispositivos (celular, computador, el de Fabian).
+  Prueba: haz un pedido de prueba desde otro navegador con el celular bloqueado: debe sonar/vibrar "Nuevo pedido #N · cliente · ciudad · total". Al tocarlo abre el panel.
+
+LO QUE TODAVÍA NO ESTÁ (siguiente fase)
+  - Pago en línea con Wompi y Bold (necesita sus llaves y el webhook de confirmación). Mientras tanto la tienda ofrece Transferencia y Contra entrega en Cali.
+  - Guías automáticas de Interrapidísimo/envia.com: por ahora Andrés escribe el número de guía en cada pedido.
+  - Píxeles de Meta y TikTok reales (necesitan los IDs).
+  - Textos legales definitivos (hoy son de ejemplo).
+  - El servidor recalcula el total: hoy confía en el precio que envía la tienda. Con Wompi se verifica en el servidor.
+
+CUENTAS
+  Dueño: lo que cree Fabian en el Paso 2 (rol owner).  Vendedores: los crea Andrés desde el panel > Vendedores > Nuevo vendedor.
