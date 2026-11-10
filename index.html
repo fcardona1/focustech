@@ -900,6 +900,25 @@ button.avatar:hover{transform:scale(1.07);box-shadow:0 0 0 4px rgba(0,145,250,.2
 .pfbt{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.pfbt small{flex-basis:100%;opacity:.7;font-size:12px}
 textarea{resize:vertical;line-height:1.5;min-height:110px}
 .specs li{white-space:pre-line;overflow-wrap:anywhere}
+/* editor de fotos de producto */
+#edroot .mback{z-index:2000}
+.mt2{display:flex;flex-direction:column;gap:5px;width:92px}
+.mt2 .mt{width:92px;height:92px}
+.mtb{display:flex;gap:4px;align-items:stretch}
+.mtb button{flex:0 0 28px;height:28px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.07);color:inherit;font:800 16px/1 var(--f-body);cursor:pointer;padding:0}
+.mtb button.aj{flex:1;font:700 11.5px var(--f-body);color:#fff;background:rgba(0,145,250,.35);border-color:rgba(0,145,250,.6)}
+.mtb button:hover:not(:disabled){background:rgba(0,145,250,.5)}.mtb button:disabled{opacity:.3;cursor:default}
+span.aj{flex:1}
+.edframe{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);aspect-ratio:4/3;background:repeating-conic-gradient(#e7ecf5 0 25%,#fff 0 50%) 0 0/16px 16px;touch-action:none;cursor:grab}
+.edframe:active{cursor:grabbing}
+.edframe canvas{width:100%;height:100%;display:block;touch-action:none}
+.edguide{position:absolute;left:0;right:0;top:12.5%;bottom:12.5%;border:2px dashed rgba(0,145,250,.9);pointer-events:none;box-shadow:0 0 0 9999px rgba(5,10,24,.28)}
+.edguide em{position:absolute;left:8px;top:6px;font:700 10px var(--f-body);font-style:normal;color:#fff;background:rgba(0,87,217,.85);padding:3px 7px;border-radius:999px}
+.edz{display:flex;align-items:center;gap:10px;font:600 12px var(--f-body)}.edz input{flex:1;accent-color:#0091FA}
+.edbtn{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.edbg{display:flex;align-items:center;gap:8px;font:600 12px var(--f-body)}
+.edsw{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.35);cursor:pointer;padding:0}.edsw.on{outline:3px solid #0091FA;outline-offset:2px}
+.mth{gap:16px 14px}
 
 </style>
 </head>
@@ -1947,7 +1966,7 @@ let formTint=null,formMedia=[];
 function openProd(id){
   if(!id&&!pro()&&S.products.length>=FREE_MAX){upsell('Llegaste al máximo de '+FREE_MAX+' productos del plan Gratis.');return}
   const p=id?P(id):{n:'',b:'',price:'',stock:'',cat:CATS[0],spec:'',st:'borrador',w:12,ws:null,colors:[{n:'Negro',h:'#1B1F2A'}]};
-  formTint=null;formMedia=[...(p.media||[])];
+  formTint=null;formMedia=(p.media||[]).map(m=>({...m}));
   const cs=[...(p.colors||[])];while(cs.length<4)cs.push({n:'',h:'#0091FA'});
   const lock=pro()?'':'disabled';
   modal(id?'Editar producto':'Nuevo producto',`<form id="f-prod" data-id="${id||''}">
@@ -1959,7 +1978,7 @@ function openProd(id){
    <div class="fld"><label for="p-pr">Precio de ahora en pesos</label><input id="p-pr" type="number" min="0" step="1000" value="${p.price}" required><small id="old-hint" class="hint"></small></div>
    <div class="fld"><label for="p-base">Precio base para vendedores ${proTag()}</label><input id="p-base" type="number" min="0" step="1000" ${lock} value="${p.base||''}" placeholder="${pro()?'Lo que le cobras al vendedor':'Disponible en Pro'}"><small class="hint">El vendedor pone su precio de venta, nunca menor a este. Lo que cobre de más es su ganancia. Vacío = no se ofrece a vendedores.</small></div>
    <label class="chk"><input type="checkbox" id="p-prem" ${p.prem?'checked':''}> Tecnología Premium (producto original)</label>
-   <div class="fld" style="margin-top:12px"><label>Fotos y videos</label><label class="upl" for="p-media">${ic('plus')} Subir fotos o videos</label><input id="p-media" type="file" accept="image/*,video/*" multiple class="sr"><div class="mth" id="mth"></div><small class="hint">La primera es la portada. Hasta 8 archivos; los videos de hasta 40 MB.</small></div>
+   <div class="fld" style="margin-top:12px"><label>Fotos y videos</label><label class="upl" for="p-media">${ic('plus')} Subir fotos o videos</label><input id="p-media" type="file" accept="image/*,video/*" multiple class="sr"><div class="mth" id="mth"></div><small class="hint">La primera es la portada. Con ‹ › cambias el orden y con "Ajustar" mueves, acercas, giras o centras cada foto. Hasta 8 archivos; videos de hasta 40 MB.</small></div>
    <div class="fld"><label for="p-st">Unidades en stock</label><input id="p-st" type="number" min="0" value="${p.stock}" required></div>
    <div class="fld"><label for="p-e">Estado</label><select id="p-e"><option value="activo" ${p.st==='activo'?'selected':''}>Activo: visible en la tienda</option><option value="borrador" ${p.st==='borrador'?'selected':''}>Borrador: lo sigues preparando</option><option value="inactivo" ${p.st==='inactivo'?'selected':''}>Inactivo: oculto, pero guardado</option></select></div>
    <div class="fld"><label for="p-w">Garantía directa</label><select id="p-w">${[3,6,9,12].map(m=>`<option value="${m}" ${p.w===m?'selected':''}>${wtxt(m)}</option>`).join('')}</select></div>
@@ -1974,7 +1993,7 @@ function saveProd(f){
   const colors=[0,1,2,3].map(i=>({n:$('#p-cn'+i).value.trim(),h:$('#p-ch'+i).value})).filter(c=>c.n);
   const wp=+$('#p-wp').value,wm=+$('#p-wm').value;
   const d={n:$('#p-n').value.trim(),b:$('#p-b').value.trim(),cat,spec:$('#p-s').value.trim(),price:+$('#p-pr').value,stock:+$('#p-st').value,st:$('#p-e').value,w:+$('#p-w').value,
-    old:+$('#p-old').value||0,base:pro()?(+$('#p-base').value||0):(id?(P(id).base||0):0),prem:$('#p-prem').checked,media:[...formMedia],ws:(pro()&&wp>0&&wm>1)?{price:wp,min:wm}:(pro()?null:(id?P(id).ws:null)),colors:colors.length?colors:[{n:'Único',h:null}]};
+    old:+$('#p-old').value||0,base:pro()?(+$('#p-base').value||0):(id?(P(id).base||0):0),prem:$('#p-prem').checked,media:formMedia.map(({o,fx,...m})=>m),ws:(pro()&&wp>0&&wm>1)?{price:wp,min:wm}:(pro()?null:(id?P(id).ws:null)),colors:colors.length?colors:[{n:'Único',h:null}]};
   if(id){const p=P(id);if(p.art!==CATART[cat]&&!p.custom)p.art=CATART[cat];Object.assign(p,d);if(formTint)p.tint=formTint}
   else S.products.push({id:Date.now(),...d,art:CATART[cat],tint:formTint||TINTS[S.products.length%TINTS.length]});
   formTint=null;closeModal();renderPanel();if($('#grid'))renderGrid();toast('Producto guardado');
@@ -2028,8 +2047,60 @@ function simOrder(){
 /* --- fotos y videos del formulario --- */
 function renderThumbs(){
   const b=$('#mth');if(!b)return;
-  b.innerHTML=formMedia.map((m,i)=>`<div class="mt">${m.t==='vid'?`<video src="${m.u}" muted preload="metadata"></video><i class="vplay sm">${ic('play')}</i>`:`<img src="${m.u}" alt="">`}${i===0?'<em>Portada</em>':''}<button type="button" data-act="mrm:${i}" aria-label="Quitar archivo">${ic('x')}</button></div>`).join('');
+  const n=formMedia.length;
+  b.innerHTML=formMedia.map((m,i)=>`<div class="mt2"><div class="mt">${m.t==='vid'?`<video src="${m.u}" muted preload="metadata"></video><i class="vplay sm">${ic('play')}</i>`:`<img src="${m.u}" alt="">`}${i===0?'<em>Portada</em>':''}<button type="button" data-act="mrm:${i}" aria-label="Quitar archivo">${ic('x')}</button></div>
+   <div class="mtb"><button type="button" data-act="mmv:${i}:-1" ${i===0?'disabled':''} aria-label="Mover antes">‹</button>${m.t==='img'?`<button type="button" class="aj" data-act="edit:${i}">Ajustar</button>`:'<span class="aj"></span>'}<button type="button" data-act="mmv:${i}:1" ${i===n-1?'disabled':''} aria-label="Mover después">›</button></div></div>`).join('');
 }
+/* ---- editor de foto: mover, acercar, girar, centrar y fondo (se hornea en 4:3) ---- */
+let ED=null;
+function edDraw(ctx,W,H){
+  const {im,ox,oy,z,rot,bg}=ED;ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  const sw=rot%2?im.height:im.width,sh=rot%2?im.width:im.height,s=Math.max(W/sw,H/sh)*z;
+  ctx.save();ctx.translate(W/2+ox*W,H/2+oy*H);ctx.rotate(rot*Math.PI/2);ctx.scale(s,s);ctx.drawImage(im,-im.width/2,-im.height/2);ctx.restore();
+}
+function edPaint(){const cv=$('#ed-cv');if(!cv||!ED)return;edDraw(cv.getContext('2d'),cv.width,cv.height);const z=$('#ed-z');if(z)z.value=ED.z;document.querySelectorAll('.edsw').forEach(b=>b.classList.toggle('on',b.dataset.c===ED.bg))}
+function openEd(i){
+  const m=formMedia[i];if(!m||m.t!=='img')return;
+  const src=m.o||m.u,im=new Image();if(!/^(data|blob):/.test(src))im.crossOrigin='anonymous';
+  im.onload=()=>{ED={i,im,...{ox:0,oy:0,z:1,rot:0,bg:'#FFFFFF'},...(m.fx||{})};showEd()};
+  im.onerror=()=>toast('No se pudo abrir esa foto para ajustarla. Súbela de nuevo.');
+  im.src=src;
+}
+function showEd(){
+  let r=$('#edroot');if(!r){r=document.createElement('div');r.id='edroot';document.body.appendChild(r)}
+  r.innerHTML=`<div class="mback"><div class="msheet" role="dialog" aria-modal="true" aria-label="Ajustar foto"><header><h3>Ajustar foto</h3><button class="x" data-act="edcancel" aria-label="Cerrar">${ic('x')}</button></header>
+  <div class="mbody"><div class="edframe"><canvas id="ed-cv" width="800" height="600"></canvas><span class="edguide"><em>Zona que se ve en las tarjetas</em></span></div>
+   <p class="hint" style="margin:8px 0">Arrastra la foto para moverla. Usa la barra para acercar o alejar.</p>
+   <div class="edz"><span>Alejar</span><input id="ed-z" type="range" min=".3" max="3" step=".01" value="1" aria-label="Acercar o alejar"><span>Acercar</span></div>
+   <div class="edbtn"><button type="button" class="btn sm alt" data-act="edctr">Centrar</button><button type="button" class="btn sm alt" data-act="edfill">Llenar el cuadro</button><button type="button" class="btn sm alt" data-act="edfit">Mostrar completa</button><button type="button" class="btn sm alt" data-act="edrot">Girar</button></div>
+   <div class="edbg"><span>Color de fondo</span>${[['#FFFFFF','Blanco'],['#EEF2F9','Gris claro'],['#050A18','Oscuro'],['#0057D9','Azul']].map(([c,n])=>`<button type="button" class="edsw" data-act="edbg:${c.slice(1)}" data-c="${c}" style="background:${c}" aria-label="${n}"></button>`).join('')}</div></div>
+  <footer><button class="btn alt" data-act="edcancel">Cancelar</button><button class="btn sig" data-act="edsave">Aplicar</button></footer></div></div>`;
+  const cv=$('#ed-cv');let dr=null;
+  cv.addEventListener('pointerdown',e=>{dr={x:e.clientX,y:e.clientY,ox:ED.ox,oy:ED.oy};cv.setPointerCapture(e.pointerId)});
+  cv.addEventListener('pointermove',e=>{if(!dr)return;const b=cv.getBoundingClientRect();ED.ox=dr.ox+(e.clientX-dr.x)/b.width;ED.oy=dr.oy+(e.clientY-dr.y)/b.height;edPaint()});
+  cv.addEventListener('pointerup',()=>{dr=null});cv.addEventListener('pointercancel',()=>{dr=null});
+  cv.addEventListener('wheel',e=>{e.preventDefault();ED.z=Math.min(3,Math.max(.3,ED.z*(e.deltaY<0?1.06:.94)));edPaint()},{passive:false});
+  $('#ed-z').addEventListener('input',e=>{ED.z=+e.target.value;edPaint()});
+  edPaint();
+}
+function edAct(a,x){
+  if(!ED)return;
+  if(a==='edctr'){ED.ox=ED.oy=0}
+  else if(a==='edfill'){ED.ox=ED.oy=0;ED.z=1}
+  else if(a==='edfit'){ED.ox=ED.oy=0;const sw=ED.rot%2?ED.im.height:ED.im.width,sh=ED.rot%2?ED.im.width:ED.im.height,k=sw/sh;ED.z=k>=4/3?1:k/(4/3)}
+  else if(a==='edrot'){ED.rot=(ED.rot+1)%4;ED.ox=ED.oy=0}
+  else if(a==='edbg'){ED.bg='#'+x}
+  edPaint();
+}
+function edClose(){const r=$('#edroot');if(r)r.remove();ED=null}
+function edSave(){
+  const m=formMedia[ED.i];if(!m){edClose();return}
+  if(!m.o)m.o=m.u;
+  const c=document.createElement('canvas');c.width=1200;c.height=900;edDraw(c.getContext('2d'),1200,900);
+  m.u=c.toDataURL('image/jpeg',.88);m.fx={ox:ED.ox,oy:ED.oy,z:ED.z,rot:ED.rot,bg:ED.bg};
+  edClose();renderThumbs();
+}
+function mediaMove(i,d){const j=i+d;if(j<0||j>=formMedia.length)return;[formMedia[i],formMedia[j]]=[formMedia[j],formMedia[i]];renderThumbs()}
 function addMedia(files){
   [...files].forEach(f=>{
     if(formMedia.length>=8){toast('Máximo 8 archivos por producto');return}
@@ -2039,8 +2110,8 @@ function addMedia(files){
     }else if(f.type.startsWith('image/')){
       const r=new FileReader();
       r.onload=()=>{const im=new Image();im.onload=()=>{
-        const k=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
-        c.getContext('2d').drawImage(im,0,0,c.width,c.height);formMedia.push({t:'img',u:c.toDataURL('image/jpeg',.82)});renderThumbs()};im.src=r.result};
+        const k=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);
+        c.getContext('2d').drawImage(im,0,0,c.width,c.height);formMedia.push({t:'img',u:c.toDataURL('image/jpeg',.85)});renderThumbs()};im.src=r.result};
       r.readAsDataURL(f);
     }
   });
@@ -2270,6 +2341,11 @@ document.addEventListener('click',e=>{
    case 'vshare':{const r=S.ref;S.ref=S.user.vendor;openShare(+x);S.ref=r;break}
    case 'newstore':openNewStore();break;
    case 'gal':{const q=P(+x);const v=$('#gview');if(q&&v){v.innerHTML=mediaEl(q.media[+y],true)}document.querySelectorAll('.th2').forEach((t,k)=>t.classList.toggle('on',k===+y));break}
+   case 'mmv':mediaMove(+x,+y);break;
+   case 'edit':openEd(+x);break;
+   case 'edctr':case 'edfill':case 'edfit':case 'edrot':case 'edbg':edAct(a,x);break;
+   case 'edcancel':edClose();break;
+   case 'edsave':edSave();break;
    case 'mrm':formMedia.splice(+x,1);renderThumbs();break;
   }
 });
