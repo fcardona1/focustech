@@ -831,6 +831,65 @@ select option{background:#0B1A3D;color:#fff}
 .icp em{font:600 11.5px/1.2 var(--f-body,inherit);font-style:normal;opacity:.85}
 .icp input:checked+span{border-color:#0091FA;background:rgba(0,145,250,.14);box-shadow:0 0 0 3px rgba(0,145,250,.18)}
 .icp input:focus-visible+span{outline:2px solid #0091FA;outline-offset:2px}
+/* ===== ingreso al panel: blanco tecnológico vivo ===== */
+.login.lt{position:relative;overflow:hidden;min-height:100%;display:block;padding:0;isolation:isolate;color:#0A1B3D;
+ background:radial-gradient(1200px 700px at 12% -10%,#EAF3FF 0%,rgba(234,243,255,0) 60%),radial-gradient(900px 600px at 100% 110%,#DCEBFF 0%,rgba(220,235,255,0) 55%),linear-gradient(180deg,#FFFFFF 0%,#F2F7FF 100%)}
+.login.lt::before{content:"";position:absolute;inset:0;z-index:-2;background-image:linear-gradient(rgba(0,87,217,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(0,87,217,.07) 1px,transparent 1px);background-size:44px 44px;-webkit-mask-image:radial-gradient(ellipse 70% 65% at 50% 45%,#000 20%,transparent 78%);mask-image:radial-gradient(ellipse 70% 65% at 50% 45%,#000 20%,transparent 78%);animation:lgGrid 24s linear infinite}
+@keyframes lgGrid{to{background-position:44px 44px,44px 44px}}
+.lgnet{position:absolute;left:0;top:0;width:100%;z-index:-1;pointer-events:none}
+.lgfx{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.lgfx i{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55}
+.lgfx .o1{width:420px;height:420px;left:-100px;top:8%;background:radial-gradient(circle,#7CC4FF,transparent 68%);animation:lgO1 16s ease-in-out infinite alternate}
+.lgfx .o2{width:520px;height:520px;right:-140px;bottom:-60px;background:radial-gradient(circle,#4FA3FF,transparent 66%);animation:lgO2 19s ease-in-out infinite alternate}
+.lgfx .o3{width:300px;height:300px;left:55%;top:-80px;background:radial-gradient(circle,#B9E1FF,transparent 66%);animation:lgO1 13s ease-in-out infinite alternate-reverse}
+@keyframes lgO1{to{transform:translate(90px,60px) scale(1.15)}}@keyframes lgO2{to{transform:translate(-110px,-70px) scale(1.12)}}
+.lgfx .scan{left:0;right:0;top:-4px;height:3px;border-radius:0;filter:none;opacity:1;background:linear-gradient(90deg,transparent,rgba(0,145,250,.55),transparent);animation:lgScan 7s linear infinite}
+@keyframes lgScan{0%{transform:translateY(0);opacity:0}8%{opacity:1}92%{opacity:1}100%{transform:translateY(100vh);opacity:0}}
+.lgtop{position:absolute;top:16px;right:16px;z-index:2;background:rgba(255,255,255,.8);color:#0A1B3D;border:1px solid rgba(0,87,217,.22);backdrop-filter:blur(8px)}
+.lgtop:hover{background:#fff;box-shadow:0 8px 22px rgba(0,87,217,.18);transform:translateY(-1px)}
+.lgwrap{min-height:100%;display:grid;place-items:center;padding:64px 16px 28px;perspective:1100px}
+.lgcard{--rx:0deg;--ry:0deg;--gx:50%;--gy:50%;position:relative;width:100%;max-width:440px;border-radius:26px;background:rgba(255,255,255,.82);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);
+ box-shadow:0 30px 70px -22px rgba(0,87,217,.38),0 8px 24px rgba(10,27,61,.08),inset 0 1px 0 #fff;transform:rotateX(var(--rx)) rotateY(var(--ry));transition:transform .18s ease-out;animation:lgIn .9s cubic-bezier(.2,.9,.25,1) both;overflow:hidden}
+@keyframes lgIn{from{opacity:0;transform:translateY(34px) scale(.96) rotateX(8deg)}to{opacity:1}}
+.lgcard::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(420px circle at var(--gx) var(--gy),rgba(0,145,250,.14),transparent 55%)}
+.lgborder{position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;background:conic-gradient(from var(--a,0deg),#0057D9,#38BDFF,#fff 30%,#0057D9 55%,#7CC4FF,#0057D9);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:lgSpin 6s linear infinite}
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes lgSpin{to{--a:360deg}}
+.lgin{position:relative;padding:30px 30px 22px}
+.lgin>*{animation:lgUp .7s cubic-bezier(.2,.9,.25,1) both}
+.lgin>*:nth-child(1){animation-delay:.25s}.lgin>*:nth-child(2){animation-delay:.33s}.lgin>*:nth-child(3){animation-delay:.41s}.lgin>*:nth-child(4){animation-delay:.49s}.lgin>*:nth-child(5){animation-delay:.57s}.lgin>*:nth-child(6){animation-delay:.65s}
+@keyframes lgUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.lg-brand{display:flex;justify-content:center;margin-bottom:14px}
+.lg-logo{height:46px;width:auto;display:block;animation:lgFloat 5s ease-in-out infinite}
+@keyframes lgFloat{50%{transform:translateY(-4px)}}
+.lg-tape{display:flex;width:max-content;margin:0 auto 10px;align-items:center;gap:8px;font:800 10.5px/1 var(--f-body);letter-spacing:.14em;text-transform:uppercase;color:#0057D9;background:rgba(0,145,250,.1);border:1px solid rgba(0,87,217,.22);padding:7px 12px;border-radius:999px}
+.lg-tape i{width:7px;height:7px;border-radius:50%;background:#19C37D;box-shadow:0 0 0 0 rgba(25,195,125,.6);animation:lgPing 2s infinite}
+@keyframes lgPing{70%{box-shadow:0 0 0 9px rgba(25,195,125,0)}100%{box-shadow:0 0 0 0 rgba(25,195,125,0)}}
+.lgin h1{text-align:center;font-size:30px;font-weight:300;margin:6px 0 6px;color:#0A1B3D}.lgin h1 b{font-weight:900;background:linear-gradient(90deg,#0057D9,#0091FA);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lgin .sub{text-align:center;color:#4C6088;font-size:14px;margin-bottom:18px}
+.lgin .fld label{color:#0057D9}
+.lgin input[type=email],.lgin input[type=password],.lgin input[type=text]{background:#F1F6FF;border:1.5px solid rgba(0,87,217,.18);color:#0A1B3D;border-radius:14px;transition:.18s}
+.lgin input::placeholder{color:#9AAACB}
+.lgin input:focus{outline:none;background:#fff;border-color:#0091FA;box-shadow:0 0 0 4px rgba(0,145,250,.16),0 8px 20px rgba(0,87,217,.1);transform:translateY(-1px)}
+.lgin .pw button{color:#4C6088}.lgin .pw button:hover{color:#0057D9}
+.lgin .chk{color:#33466E;font-weight:600;font-size:13.5px}
+.lgin .err{color:#D6334C;min-height:18px}
+.lgbtn{position:relative;overflow:hidden;margin-top:6px;box-shadow:0 14px 28px -10px rgba(0,87,217,.6)}
+.lgbtn::after{content:"";position:absolute;top:0;bottom:0;width:60px;left:-80px;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:lgShine 3.6s ease-in-out infinite}
+@keyframes lgShine{0%,55%{left:-80px}100%{left:120%}}
+.lgbtn:hover{transform:translateY(-2px);box-shadow:0 18px 34px -10px rgba(0,87,217,.7)}.lgbtn:active{transform:translateY(0) scale(.99)}
+.lgdemo{font-size:12px;margin-top:14px;color:#4C6088;text-align:center}
+.lgby{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 20px 18px;background:linear-gradient(135deg,#050A18,#0B1B45 70%,#0A2A6E);animation:lgUp .8s .8s cubic-bezier(.2,.9,.25,1) both}
+.lgby small{font:700 9.5px/1 var(--f-body);letter-spacing:.2em;text-transform:uppercase;color:#7FA6E8}
+.lgby img{height:30px;width:auto;display:block}
+.lgby em{font:500 11.5px/1.3 var(--f-body);font-style:normal;color:#9FB4DA;text-align:center}
+.lgby .sh{position:absolute;top:0;bottom:0;width:70px;left:-100px;background:linear-gradient(100deg,transparent,rgba(120,190,255,.28),transparent);transform:skewX(-18deg);animation:lgShine 5s 1.5s ease-in-out infinite}
+@media (max-width:480px){.lgin{padding:24px 20px 18px}.lgin h1{font-size:26px}.lgtop{top:10px;right:10px}.lgwrap{padding-top:58px}}
+@media (prefers-reduced-motion:reduce){.login.lt *,.login.lt::before,.lgcard,.lgborder{animation:none!important;transition:none!important}}
+.lgin .chk input{appearance:none;-webkit-appearance:none;width:20px;height:20px;border-radius:6px;border:1.5px solid rgba(0,87,217,.4);background:#fff;display:inline-grid;place-content:center;vertical-align:middle;margin-right:8px;transition:.15s;cursor:pointer}
+.lgin .chk input::after{content:"";width:10px;height:6px;border:2.5px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) scale(0);transition:.15s;margin-top:-2px}
+.lgin .chk input:checked{background:linear-gradient(135deg,#0057D9,#0091FA);border-color:#0057D9}.lgin .chk input:checked::after{transform:rotate(-45deg) scale(1)}
+.lgin .chk input:focus-visible{outline:2px solid #0091FA;outline-offset:2px}
 
 </style>
 </head>
@@ -1080,7 +1139,7 @@ function upsell(msg){
 const lastWA=n=>'57'+String(n||'').replace(/\D/g,'');
 function orderMsg(o){
   const it=o.items.map(l=>{const p=P(l.id);return l.q+'× '+(p?p.n:'Producto')+(l.col?' ('+l.col+')':'')}).join('\n');
-  const link=location.href.split('#')[0]+'#panel';
+  const link=PROD?location.origin+'/panel':location.href.split('#')[0]+'#panel';
   if(o.vend)return `🛒 *Pedido de vendedor #${o.id}*\nVendedor: *${o.vend.name}* (${o.tel})\nDespachar a: ${o.addr}, ${o.city}\n\n${it}\n\nEl vendedor te paga: *${money(o.total)}* (base + envío)\nCliente final: ${o.vend.cust} · ${o.vend.custTel}\n\nÁbrelo en tu panel: ${link}`;
   const env=cityInfo(o.city).local?'Gratis en Cali':(o.carrier||'Interrapidísimo')+' '+money(o.ship$);
   return `🛒 *Nuevo pedido #${o.id}*\nCliente: *${o.cli}* (${o.tel})\nCiudad: ${o.city}\nDirección: ${o.addr}\n\n${it}\n\nPago: ${o.pay}${o.paid?' ✅ pagado':' (por cobrar)'}\nEnvío: ${env}\n*Total: ${money(o.total)}*\n\nÁbrelo en tu panel: ${link}`;
@@ -1567,17 +1626,52 @@ const myV=()=>S.user&&S.user.vendor?S.vendors.find(v=>v.code===S.user.vendor):nu
 const pending=()=>S.orders.filter(o=>o.ship==='Por despachar').length;
 const citasPend=()=>S.citas.filter(c=>c.st==='Pendiente').length;
 function loginHTML(){
-  return `<div class="login"><div class="lock-top">${logo('bienvenida')}<a class="btn sm alt" href="#tienda" data-act="go:tienda">${ic('store')} Tienda</a></div>
-  <div class="card"><span class="tape">Panel FOCUSTECH</span><h1>Entra a tu panel</h1><p class="sub">Aquí ves tus pedidos, tu stock, tus pagos y tus envíos.</p>
-  <form id="f-login"><div class="fld"><label for="l-e">Correo</label><input id="l-e" type="email" autocomplete="username" required></div>
-  <div class="fld"><label for="l-p">Contraseña</label><div class="pw"><input id="l-p" type="password" autocomplete="current-password" required><button type="button" data-act="eye" aria-label="Mostrar u ocultar contraseña">${ic('eye')}</button></div></div>
-  <label class="chk"><input type="checkbox" id="l-r"> Recordarme</label><p class="err" id="l-err"></p>
-  <button class="btn sig block" type="submit">Ingresar</button></form>
-  ${PROD?'':'<p style="font-size:12.5px;margin-top:14px;color:var(--steel)">Dueño: andres@focustech.co · focus2026<br>Vendedora: laura@vendedor.co · laura2026</p>'}</div></div>`;
+  return `<div class="login lt" id="lg"><canvas class="lgnet" id="lgnet" aria-hidden="true"></canvas><div class="lgfx" aria-hidden="true"><i class="o1"></i><i class="o2"></i><i class="o3"></i><i class="scan"></i></div>
+  <a class="btn sm alt lgtop" href="#tienda" data-act="go:tienda">${ic('store')} Ir a la tienda</a>
+  <div class="lgwrap"><div class="lgcard" id="lgcard"><span class="lgborder" aria-hidden="true"></span>
+   <div class="lgin">
+    <div class="lg-brand"><img src="${IMG.HB}" alt="FOCUSTECH" class="lg-logo"></div>
+    <span class="lg-tape"><i></i>Panel de control</span>
+    <h1>Bienvenido <b>de nuevo</b></h1><p class="sub">Aquí ves tus pedidos, tu stock, tus pagos y tus envíos.</p>
+    <form id="f-login"><div class="fld"><label for="l-e">Correo</label><input id="l-e" type="email" autocomplete="username" placeholder="tucorreo@ejemplo.com" required></div>
+    <div class="fld"><label for="l-p">Contraseña</label><div class="pw"><input id="l-p" type="password" autocomplete="current-password" placeholder="••••••••" required><button type="button" data-act="eye" aria-label="Mostrar u ocultar contraseña">${ic('eye')}</button></div></div>
+    <label class="chk"><input type="checkbox" id="l-r"> Recordarme en este dispositivo</label><p class="err" id="l-err"></p>
+    <button class="btn sig block lgbtn" type="submit"><span>Ingresar al panel</span></button></form>
+    ${PROD?'':'<p class="lgdemo">Dueño: andres@focustech.co · focus2026<br>Vendedora: laura@vendedor.co · laura2026</p>'}
+   </div>
+   <div class="lgby"><span class="sh"></span><small>Desarrollado por</small><img src="${IMG.ONY}" alt="Onytek"><em>Tecnología con propósito, ejecución con precisión.</em></div>
+  </div></div></div>`;
+}
+/* fondo vivo del ingreso: red de nodos que reacciona al puntero + tarjeta que se inclina */
+let lgRaf=0;
+function initLogin(){
+  const root=$('#lg'),cv=$('#lgnet');if(!root||!cv)return;
+  cancelAnimationFrame(lgRaf);
+  const card=$('#lgcard'),ctx=cv.getContext('2d'),RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  let W=0,H=0,dpr=Math.min(2,devicePixelRatio||1),N=[],mx=-999,my=-999,t0=0;
+  const COL=['0,87,217','0,145,250','0,104,230','46,170,255'];
+  function size(){const r=root.getBoundingClientRect();W=r.width;H=Math.max(r.height,root.scrollHeight);cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);
+    const n=Math.round(Math.min(70,Math.max(26,W*H/21000)));N=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28,r:2+Math.random()*3.6,c:COL[Math.random()*COL.length|0],p:Math.random()*6.28}))}
+  size();addEventListener('resize',size);
+  root.addEventListener('pointermove',e=>{const r=root.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top+root.scrollTop;
+    if(card&&!RM){const c=card.getBoundingClientRect(),dx=(e.clientX-(c.left+c.width/2))/innerWidth,dy=(e.clientY-(c.top+c.height/2))/innerHeight;card.style.setProperty('--rx',(-dy*7).toFixed(2)+'deg');card.style.setProperty('--ry',(dx*9).toFixed(2)+'deg');card.style.setProperty('--gx',(50+dx*60)+'%');card.style.setProperty('--gy',(50+dy*60)+'%')}});
+  root.addEventListener('pointerleave',()=>{mx=my=-999;if(card){card.style.setProperty('--rx','0deg');card.style.setProperty('--ry','0deg')}});
+  function frame(ts){
+    if(!cv.isConnected){removeEventListener('resize',size);return}
+    if(!t0)t0=ts;const T=(ts-t0)/1000;ctx.clearRect(0,0,W,H);
+    for(const n of N){if(!RM){n.x+=n.vx;n.y+=n.vy;if(n.x<-20)n.x=W+20;if(n.x>W+20)n.x=-20;if(n.y<-20)n.y=H+20;if(n.y>H+20)n.y=-20;
+      const dx=n.x-mx,dy=n.y-my,d=Math.hypot(dx,dy);if(d<130&&d>0){const f=(130-d)/130*.9;n.x+=dx/d*f;n.y+=dy/d*f}}}
+    for(let i=0;i<N.length;i++){const a=N[i];
+      for(let j=i+1;j<N.length;j++){const b=N[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d<150){const al=(1-d/150)*.34;ctx.strokeStyle='rgba(0,110,230,'+al+')';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+        if(!RM&&((i*7+j*3)%11===0)){const k=((T*.35+i*.13)%1),px=a.x+(b.x-a.x)*k,py=a.y+(b.y-a.y)*k;ctx.fillStyle='rgba(0,145,250,'+(al*2.4)+')';ctx.beginPath();ctx.arc(px,py,1.8,0,6.283);ctx.fill()}}}
+      const dm=Math.hypot(a.x-mx,a.y-my);if(dm<190){ctx.strokeStyle='rgba(0,145,250,'+((1-dm/190)*.65)+')';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(mx,my);ctx.stroke()}}
+    for(const n of N){const pu=RM?1:1+.22*Math.sin(T*1.6+n.p);ctx.fillStyle='rgba('+n.c+',.9)';ctx.beginPath();ctx.arc(n.x,n.y,n.r*pu,0,6.283);ctx.fill();ctx.fillStyle='rgba('+n.c+',.12)';ctx.beginPath();ctx.arc(n.x,n.y,n.r*pu*2.6,0,6.283);ctx.fill()}
+    lgRaf=requestAnimationFrame(frame)}
+  lgRaf=requestAnimationFrame(frame);
 }
 function renderPanel(){
   const v=$('#v-panel'),old=$('.pmain',v),sc=old?old.scrollTop:0;
-  if(!S.user){v.innerHTML=loginHTML();return}
+  if(!S.user){v.innerHTML=loginHTML();initLogin();return}
   const tabs=tabsFor();if(!tabs.some(t=>t[0]===S.tab))S.tab=tabs[0][0];
   const vd=myV(),shopGo=vd?'vendedor-'+vd.code:'tienda';
   const pe=pending(),cp=citasPend();
@@ -2049,7 +2143,7 @@ document.addEventListener('click',e=>{
   if(el.tagName==='A'&&a==='go')e.preventDefault();
   if(el.dataset.pro&&!pro()){upsell(proMsg(el));return}
   switch(a){
-   case 'go':location.hash=x;closeModal();route();break;
+   case 'go':closeModal();if(CLEAN){history.pushState(null,'',x==='panel'?'/panel':x==='tienda'?'/':'/#'+x);route()}else{location.hash=x;route()}break;
    case 'close':closeModal();break;
    case 'cat':S.cat=el.dataset.act.slice(4);renderChips();renderGrid();{const g=$('#catalogo');if(g&&x==='Por mayor')g.scrollIntoView({behavior:'smooth',block:'start'})}break;
    case 'goto':{const g=document.getElementById(x);if(g)g.scrollIntoView({behavior:'smooth',block:'start'});break}
@@ -2109,7 +2203,7 @@ document.addEventListener('click',e=>{
      if(x==='meta'||x==='tiktok')track('PageView','Prueba de conexión');
      toast('Conexión exitosa (simulada en el prototipo)');break}
    case 'setplan':S.plan=x;closeModal();rp();toast(x==='pro'?'Plan Pro activado para la demo':'Ahora ves el plan Gratis');break;
-   case 'gopro':closeModal();S.tab='plan';if(location.hash!=='#panel')location.hash='panel';else route();break;
+   case 'gopro':closeModal();S.tab='plan';goPanel();break;
    case 'domain':if(!pro()){upsell('Conectar tu propio dominio es del plan Pro.');break}toast('Dominio verificado (simulado). El certificado seguro se activa solo.');break;
    case 'aigen':{if(!pro()&&S.ai.used>=FREE_AI){upsell('Ya usaste tus '+FREE_AI+' imágenes con IA del plan Gratis.');break}
      S.ai.used++;formTint=AITINTS[Math.floor(Math.random()*AITINTS.length)];const b=$('.aib');if(b){b.style.background=formTint;b.classList.add('done');$('small',b).textContent=pro()?'Imagen lista (ilimitadas)':'Imagen lista. Te quedan '+Math.max(0,FREE_AI-S.ai.used)+' de '+FREE_AI}
@@ -2195,9 +2289,11 @@ document.addEventListener('change',e=>{
 });
 
 /* ===== rutas ===== */
+const CLEAN=PROD&&/^https?:/.test(location.protocol);
+function goPanel(){if(CLEAN){history.pushState(null,'','/panel');route()}else if(location.hash!=='#panel')location.hash='panel';else route()}
 function route(){
   /* medios */
-  let h=(location.hash||'#bienvenida').slice(1);if(PROD&&(h==='bienvenida'||h==='plataforma'))h='tienda';
+  let h=(location.hash||'').slice(1);if(!h&&PROD&&/^\/(panel|admin)\/?$/i.test(location.pathname))h='panel';if(!h)h='bienvenida';if(PROD&&(h==='bienvenida'||h==='plataforma'))h='tienda';
   const pm=/^producto-(\d+)$/.exec(h),vm=/^vendedor-([a-z0-9]+)(?:-(\d+))?$/.exec(h);
   const nref=vm&&S.vendors.some(x=>x.code===vm[1]&&x.on)?vm[1]:null;
   if(nref!==S.ref){S.ref=nref;S.cart=[];S.coupon=null;S.cat='Todo'}
@@ -2426,6 +2522,7 @@ function askPush(){
 async function boot(){
   try{const d=localStorage.getItem('ft_dens');if(d==='s'||d==='m'||d==='l')S.dens=d}catch(_){}
   window.addEventListener('hashchange',()=>{closeModal();route()});
+  window.addEventListener('popstate',()=>{closeModal();route()});
   if(!PROD){loadSession();route();return}
   blankDemo();
   try{await restoreAuth();await loadPublic();if(AUTH)await loadPrivate()}
