@@ -233,6 +233,15 @@ create policy productos_write  on storage.objects for insert to authenticated wi
 create policy productos_update on storage.objects for update to authenticated using (bucket_id = 'productos' and public.is_staff());
 create policy productos_delete on storage.objects for delete to authenticated using (bucket_id = 'productos' and public.is_staff());
 
+
+-- Foto de perfil: cada usuario (dueño, admin o vendedor) puede subir SOLO su propia foto
+drop policy if exists avatars_insert on storage.objects;
+drop policy if exists avatars_update on storage.objects;
+create policy avatars_insert on storage.objects for insert to authenticated
+  with check (bucket_id = 'productos' and name = 'avatars/' || auth.uid()::text || '.jpg');
+create policy avatars_update on storage.objects for update to authenticated
+  using (bucket_id = 'productos' and name = 'avatars/' || auth.uid()::text || '.jpg');
+
 -- =====================================================================
 -- PASO 2 (después de crear las cuentas en Authentication > Users):
 -- Quita los "--" del inicio de las líneas, revisa los correos y ejecuta.

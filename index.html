@@ -890,6 +890,14 @@ select option{background:#0B1A3D;color:#fff}
 .lgin .chk input::after{content:"";width:10px;height:6px;border:2.5px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) scale(0);transition:.15s;margin-top:-2px}
 .lgin .chk input:checked{background:linear-gradient(135deg,#0057D9,#0091FA);border-color:#0057D9}.lgin .chk input:checked::after{transform:rotate(-45deg) scale(1)}
 .lgin .chk input:focus-visible{outline:2px solid #0091FA;outline-offset:2px}
+/* mi perfil */
+button.avatar{cursor:pointer;overflow:hidden;padding:0;color:#fff;transition:.18s}
+button.avatar:hover{transform:scale(1.07);box-shadow:0 0 0 4px rgba(0,145,250,.28)}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.pfav{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.pfpic{width:92px;height:92px;flex:none;border-radius:50%;overflow:hidden;background:var(--g,linear-gradient(135deg,#0057D9,#0091FA));border:2px solid rgba(160,215,255,.6);display:grid;place-items:center;box-shadow:0 10px 26px -8px rgba(0,145,250,.55)}
+.pfpic img{width:100%;height:100%;object-fit:cover}.pfpic b{font:800 36px var(--f-body);color:#fff}
+.pfbt{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.pfbt small{flex-basis:100%;opacity:.7;font-size:12px}
 
 </style>
 </head>
@@ -1669,6 +1677,40 @@ function initLogin(){
     lgRaf=requestAnimationFrame(frame)}
   lgRaf=requestAnimationFrame(frame);
 }
+/* ===== mi perfil ===== */
+let profAv='';
+function avHTML(){const a=profAv==='del'?'':(profAv||S.user.avatar);return a?`<img src="${esc(a)}" alt="Tu foto">`:`<b>${esc((S.user.full||S.user.name||'?')[0])}</b>`}
+function openProfile(){
+  profAv='';const u=S.user;
+  modal('Mi perfil',`<form id="f-prof" autocomplete="off">
+   <div class="pfav"><div class="pfpic" id="pf-pic">${avHTML()}</div><div class="pfbt"><label class="btn sm alt" for="pf-file">${ic('plus')} Cambiar foto</label><input id="pf-file" type="file" accept="image/*" class="sr"><button type="button" class="btn sm alt" data-act="pfdel">Quitar</button><small>Se recorta en círculo. JPG o PNG.</small></div></div>
+   <div class="fld"><label for="pf-n">Nombre completo</label><input id="pf-n" type="text" maxlength="60" value="${esc(u.full||u.name)}" required></div>
+   <div class="fld"><label for="pf-e">Correo</label><input id="pf-e" type="email" value="${esc(u.email)}" required${PROD?'':' disabled'}><small class="hint">${PROD?'Si lo cambias, te enviamos un correo al nuevo para confirmarlo.':'En la versión real puedes cambiarlo.'}</small></div>
+   <div class="fld"><label for="pf-t">Número de WhatsApp</label><input id="pf-t" type="tel" inputmode="numeric" maxlength="14" value="${esc(u.tel||'')}" placeholder="3001234567"><small class="hint">Solo números, sin espacios. Ejemplo: 3001234567</small></div>
+   <span class="lbl">Cambiar contraseña (opcional)</span>
+   <div class="fld"><label for="pf-c">Contraseña actual</label><input id="pf-c" type="password" autocomplete="current-password" placeholder="Solo si vas a cambiar el correo o la contraseña"></div>
+   <div class="two2"><div class="fld"><label for="pf-p">Nueva contraseña</label><input id="pf-p" type="password" autocomplete="new-password" minlength="6" placeholder="Mínimo 6 caracteres"></div><div class="fld"><label for="pf-p2">Repetir contraseña</label><input id="pf-p2" type="password" autocomplete="new-password" placeholder="Igual a la anterior"></div></div>
+   <p class="hint" id="pf-err" style="color:#FF8A8A"></p></form>`,
+   {foot:'<button class="btn alt" data-act="close">Cancelar</button><button class="btn sig" type="submit" form="f-prof" id="pf-save">Guardar cambios</button>'});
+  $('#pf-file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(im.width,im.height),c=document.createElement('canvas');c.width=c.height=256;c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,256,256);profAv=c.toDataURL('image/jpeg',.86);$('#pf-pic').innerHTML=avHTML()};im.src=r.result};r.readAsDataURL(f);e.target.value=''});
+}
+async function saveProfile(){
+  const er=$('#pf-err'),bt=$('#pf-save'),full=$('#pf-n').value.trim().replace(/\s+/g,' '),em=$('#pf-e').value.trim().toLowerCase(),
+    tel=$('#pf-t').value.replace(/\D/g,'').replace(/^57(?=3\d{9}$)/,''),pw=$('#pf-p').value,pw2=$('#pf-p2').value,cur=$('#pf-c').value;
+  er.textContent='';
+  if(!full){er.textContent='Escribe tu nombre completo.';return}
+  if(tel&&!/^3\d{9}$/.test(tel)){er.textContent='El WhatsApp debe tener 10 números y empezar por 3. Ejemplo: 3001234567';return}
+  if(pw&&pw.length<6){er.textContent='La nueva contraseña debe tener al menos 6 caracteres.';return}
+  if(pw!==pw2){er.textContent='Las dos contraseñas nuevas no coinciden.';return}
+  bt.disabled=true;
+  try{
+    let note='Perfil actualizado';
+    if(PROD){const r=await dbProfile({full,tel,email:em,pw,cur,av:profAv});if(r.emailPending)note='Guardado. Revisa el correo nuevo para confirmar el cambio de correo'}
+    else{if(profAv==='del')S.user.avatar='';else if(profAv)S.user.avatar=profAv;S.user.full=full;S.user.tel=tel;S.user.name=full.split(' ')[0]}
+    if(PROD){/* setAuth ya refrescó S.user */}
+    closeModal();rp();toast(note+(pw?' y contraseña cambiada':''))
+  }catch(e){bt.disabled=false;er.textContent=e.message||'No se pudo guardar. Inténtalo de nuevo.'}
+}
 function renderPanel(){
   const v=$('#v-panel'),old=$('.pmain',v),sc=old?old.scrollTop:0;
   if(!S.user){v.innerHTML=loginHTML();initLogin();return}
@@ -1680,7 +1722,7 @@ function renderPanel(){
   const bt=tabs.filter(t=>BOT.includes(t[0])),more=tabs.filter(t=>!BOT.includes(t[0]));
   const fab=vd||S.tab==='stats'?null:S.tab==='vendedores'?['newv','Nuevo vendedor']:S.tab==='cupones'?['newc','Nuevo cupón']:S.tab==='productos'&&S.ptab==='combos'?['newcombo','Nuevo combo']:['newp','Nuevo producto'];
   v.innerHTML=`<aside class="side">${logo('bienvenida')}<nav>${tabs.map(navbtn).join('')}</nav>${vd||PROD?'':`<div class="plan-chip ${pro()?'pro':''}">${ic('crown')}<span>Plan ${pro()?'Pro':'Gratis'}</span><button data-act="tab:plan">${pro()?'Ver':'Mejorar'}</button></div>`}<div class="by">${onySeal('side')}</div></aside>
-  <div class="pmain"><header class="ptop">${logo('bienvenida')}<div class="r">${vd?'':`<button class="bell ${unreadN()?'ring':''}" data-act="bell" aria-label="Notificaciones: ${unreadN()} nuevas">${ic('bell')}${unreadN()?`<b class="cnt">${unreadN()}</b>`:''}</button>`}<a class="btn sm alt" href="#${shopGo}" data-act="go:${shopGo}" aria-label="Ir a la tienda">${ic('store')} <span class="hm">Tienda</span></a><button class="btn sm alt" data-act="logout" aria-label="Cerrar sesión">${ic('out')} <span class="hm">Cerrar sesión</span></button><span class="avatar" title="${esc(S.user.name)}">${esc(S.user.name[0])}</span></div></header>
+  <div class="pmain"><header class="ptop">${logo('bienvenida')}<div class="r">${vd?'':`<button class="bell ${unreadN()?'ring':''}" data-act="bell" aria-label="Notificaciones: ${unreadN()} nuevas">${ic('bell')}${unreadN()?`<b class="cnt">${unreadN()}</b>`:''}</button>`}<a class="btn sm alt" href="#${shopGo}" data-act="go:${shopGo}" aria-label="Ir a la tienda">${ic('store')} <span class="hm">Tienda</span></a><button class="btn sm alt" data-act="logout" aria-label="Cerrar sesión">${ic('out')} <span class="hm">Cerrar sesión</span></button><button class="avatar" data-act="profile" title="Mi perfil" aria-label="Mi perfil">${S.user.avatar?`<img src="${esc(S.user.avatar)}" alt="">`:esc(S.user.name[0])}</button></div></header>
   <main class="pbody">${({resumen:tResumen,stats:tStats,pedidos:tPedidos,productos:tProductos,citas:tCitas,clientes:tClientes,cupones:tCupones,pagos:tPagos,integra:tIntegra,plan:tPlan,eco:tEco,vendedores:tVendedores,vres:vResumen,vcat:vCatalogo,vven:vVentas})[S.tab]()}</main>${footer()}</div>
   <nav class="bnav" aria-label="Secciones">${bt.map(t=>`<button class="${S.tab===t[0]?'on':''}" data-act="tab:${t[0]}">${ic(t[2])}<span>${t[1]}</span>${badgeOf(t[0])?`<b class="cnt">${badgeOf(t[0])}</b>`:''}</button>`).join('')}${more.length?`<button class="${more.some(t=>t[0]===S.tab)?'on':''}" data-act="more">${ic('more')}<span>Más</span></button>`:''}</nav>
   ${fab?`<button class="fab" data-act="${fab[0]}" aria-label="${fab[1]}">${ic('plus')}</button>`:''}`;
@@ -2177,6 +2219,8 @@ document.addEventListener('click',e=>{
    case 'tabm':closeModal();S.tab=x;rp();break;
    case 'more':openMore();break;
    case 'ptab':S.ptab=x;rp();break;
+   case 'profile':openProfile();break;
+   case 'pfdel':profAv='del';$('#pf-pic').innerHTML=avHTML();break;
    case 'editcat':openCat(+x);break;
    case 'delcat':delCat(+x);break;
    case 'delcat2':{const c=CATS[+x];if(c&&!catN(c)){CATS.splice(+x,1);delete CATART[c];if(S.cat===c)S.cat='Todo'}closeModal();rp();toast('Categoría eliminada');break}
@@ -2244,6 +2288,7 @@ document.addEventListener('submit',e=>{
     S.user={email:em,name:u.name,admin:!!u.admin,vendor:u.vendor||null};S.tab='resumen';saveSession(em,$('#l-r').checked);S.anim=true;rp(true);
   }else if(f.id==='f-prod'){if(PROD)uploadMedia().then(()=>saveProd(f)).catch(()=>toast('No pudimos subir las fotos. Revisa tu conexión e inténtalo de nuevo.'));else saveProd(f)}
   else if(f.id==='f-cat')saveCat(f);
+  else if(f.id==='f-prof')saveProfile();
   else if(f.id==='f-guia'){const o=S.orders.find(k=>k.id===+f.dataset.o);o.guia=$('#g-n').value.trim();o.carrier=$('#g-c').value;closeModal();openOrder(o.id);rp();toast('Guía guardada')}
   else if(f.id==='f-vend'){
     const code=$('#vn-c').value.trim().toLowerCase(),em=$('#vn-e').value.trim().toLowerCase();
@@ -2314,10 +2359,11 @@ const isStaff=()=>!!AUTH&&(AUTH.role==='owner'||AUTH.role==='admin');
 const b64j=t=>{t=t.replace(/-/g,'+').replace(/_/g,'/');while(t.length%4)t+='=';return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(t),c=>c.charCodeAt(0))))};
 function setAuth(j,remember){
   const p=b64j(j.access_token.split('.')[1]),am=p.app_metadata||{},um=p.user_metadata||{};
-  AUTH={token:j.access_token,refresh:j.refresh_token,exp:p.exp,email:p.email,role:am.role||null,vendor:am.vendor||null,name:um.name||(p.email||'').split('@')[0],remember:remember!==false};
+  AUTH={token:j.access_token,refresh:j.refresh_token,exp:p.exp,email:p.email,role:am.role||null,vendor:am.vendor||null,name:um.full_name||um.name||(p.email||'').split('@')[0],remember:remember!==false};
   try{const st=AUTH.remember?localStorage:sessionStorage,ot=AUTH.remember?sessionStorage:localStorage;st.setItem('ft_auth',JSON.stringify({a:AUTH.token,r:AUTH.refresh}));ot.removeItem('ft_auth')}catch(_){}
-  S.user={email:AUTH.email,name:AUTH.name.split(' ')[0],admin:AUTH.role==='admin',vendor:AUTH.vendor||null};
+  S.user={email:AUTH.email,name:AUTH.name.split(' ')[0],admin:AUTH.role==='admin',vendor:AUTH.vendor||null};applyMeta(um);
 }
+function applyMeta(um){if(!S.user)return;S.user.full=um.full_name||um.name||S.user.name;S.user.tel=um.whatsapp||'';S.user.avatar=um.avatar||'';S.user.name=String(S.user.full).split(' ')[0]}
 function authClear(){AUTH=null;try{localStorage.removeItem('ft_auth');sessionStorage.removeItem('ft_auth')}catch(_){}}
 async function authFetch(path,body){
   const r=await fetch(CFG.url+path,{method:'POST',headers:{apikey:CFG.key,'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -2467,7 +2513,7 @@ async function restoreAuth(){
   if(!raw)return;
   try{const t=JSON.parse(raw),p=b64j(t.a.split('.')[1]);
     if(p.exp-60<Date.now()/1e3){const j=await authFetch('/auth/v1/token?grant_type=refresh_token',{refresh_token:t.r});setAuth(j,rem)}
-    else{AUTH={token:t.a,refresh:t.r,exp:p.exp,email:p.email,role:(p.app_metadata||{}).role||null,vendor:(p.app_metadata||{}).vendor||null,name:(p.user_metadata||{}).name||(p.email||'').split('@')[0],remember:rem};S.user={email:AUTH.email,name:AUTH.name.split(' ')[0],admin:AUTH.role==='admin',vendor:AUTH.vendor||null}}
+    else{AUTH={token:t.a,refresh:t.r,exp:p.exp,email:p.email,role:(p.app_metadata||{}).role||null,vendor:(p.app_metadata||{}).vendor||null,name:(p.user_metadata||{}).full_name||(p.user_metadata||{}).name||(p.email||'').split('@')[0],remember:rem};S.user={email:AUTH.email,name:AUTH.name.split(' ')[0],admin:AUTH.role==='admin',vendor:AUTH.vendor||null};applyMeta(p.user_metadata||{})}
   }catch(e){authClear();S.user=null}
 }
 async function prodVendor(f){
@@ -2480,6 +2526,28 @@ async function prodVendor(f){
     S.vendors.push({id:code,code,name:nm,email:em,tel:$('#vn-t').value.trim(),city:$('#vn-ci').value,addr:$('#vn-a').value.trim()+', '+$('#vn-ci').value,on:true,prices:{}});
     modal('Vendedor creado',`<div class="card" style="padding:16px"><p><b>${esc(nm)}</b> ya puede entrar al panel.</p><p style="margin-top:8px">Correo: <code>${esc(em)}</code><br>Contraseña: <code>${esc(pw)}</code></p><p style="margin-top:8px;color:var(--steel)">Cuando entre, elegirá qué productos vender y a qué precio.</p></div>`,{foot:'<button class="btn sig" data-act="close">Listo</button>'});rp();
   }catch(e){er.textContent='No pudimos crear la cuenta: '+(e.message||'revisa los datos')}
+}
+/* ---- mi perfil (cuenta del usuario que entró) ---- */
+async function dbProfile(d){
+  /* d: {full,tel,email,pw,cur,av} · av: dataURL nuevo, 'del' para quitar, '' sin cambio */
+  if(d.pw||(d.email&&d.email!==AUTH.email)){
+    if(!d.cur)throw new Error('Escribe tu contraseña actual para cambiar el correo o la contraseña.');
+    try{const j=await authFetch('/auth/v1/token?grant_type=password',{email:AUTH.email,password:d.cur});setAuth(j,AUTH.remember)}catch(_){throw new Error('La contraseña actual no es correcta.')}
+  }
+  let avatar=S.user.avatar||'';
+  if(d.av==='del')avatar='';
+  else if(d.av){
+    const b=await (await fetch(d.av)).blob(),uid=b64j(AUTH.token.split('.')[1]).sub,path='avatars/'+uid+'.jpg';await ensureFresh();
+    const r=await fetch(CFG.url+'/storage/v1/object/productos/'+path,{method:'POST',headers:{apikey:CFG.key,Authorization:'Bearer '+AUTH.token,'Content-Type':'image/jpeg','x-upsert':'true'},body:b});
+    if(!r.ok)throw new Error('No se pudo subir la foto ('+r.status+'). ¿Ya ejecutaste el SQL actualizado?');
+    avatar=CFG.url+'/storage/v1/object/public/productos/'+path+'?v='+Date.now();
+  }
+  const body={data:{full_name:d.full,name:d.full,whatsapp:d.tel,avatar}};
+  if(d.pw)body.password=d.pw;
+  if(d.email&&d.email!==AUTH.email)body.email=d.email;
+  const u=await api('/auth/v1/user',{method:'PUT',body:JSON.stringify(body)});
+  try{const j=await authFetch('/auth/v1/token?grant_type=refresh_token',{refresh_token:AUTH.refresh});setAuth(j,AUTH.remember)}catch(_){}
+  return {emailPending:!!(u&&u.new_email)};
 }
 /* ---- fotos y videos de productos ---- */
 async function uploadMedia(){
