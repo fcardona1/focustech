@@ -1083,6 +1083,15 @@ body{padding-top:env(safe-area-inset-top)}
 html{overflow:hidden;overscroll-behavior:none;width:100%;height:100%}
 body{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:auto;padding-top:env(safe-area-inset-top);overflow:hidden;overscroll-behavior:none}
 .view{height:100%}
+/* descripción como un solo texto (no una caja por línea) */
+.pdesc{margin:12px 0 8px;padding:12px 14px;border-radius:14px;background:#F4F7FD;border:1px solid var(--line);font-size:14px;line-height:1.6;color:var(--text);white-space:pre-line;overflow-wrap:anywhere}
+.pwar{display:flex;align-items:center;gap:8px;margin:0 0 6px;font-size:13px;font-weight:700;color:#0E7A47}
+.pwar .ico{width:16px;height:16px}
+.dng{color:#C62840!important;border-color:rgba(198,40,64,.35)!important}
+.dng:hover{background:rgba(198,40,64,.1)!important}
+.btn.dng2{background:linear-gradient(135deg,#D6334C,#F0506A)!important;color:#fff!important}
+.rt .dng{padding:0 10px;min-width:38px}
+.rt .dng .ico{width:16px;height:16px}
 
 </style>
 </head>
@@ -1128,7 +1137,7 @@ const IC={
  cart:'<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11L21 7H6"/>',
  eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
  eyeoff:'<path d="M3 3l18 18M10.6 5.1A9.7 9.7 0 0112 5c6 0 10 7 10 7a17 17 0 01-3.2 3.9M6.2 6.2A17 17 0 002 12s4 7 10 7a9.8 9.8 0 004-.9"/>',
- x:'<path d="M5 5l14 14M19 5L5 19"/>',
+ x:'<path d="M5 5l14 14M19 5L5 19"/>',trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
  out:'<path d="M9 4H4v16h5M16 8l4 4-4 4M20 12H9"/>',
  store:'<path d="M3 9l2-5h14l2 5M3 9h18v2a3 3 0 01-6 0 3 3 0 01-6 0 3 3 0 01-6 0zM5 14v6h14v-6"/>',
@@ -1654,10 +1663,10 @@ function openProduct(id){
    ${cs.length>1?`<div class="sw3" role="group" aria-label="Colores disponibles">${cs.map((c,k)=>`<button class="chipc ${k===i?'on':''}" data-act="pcol:${id}:${k}"><i class="dot sm" style="--c:${c.h}"></i>${esc(c.n)}</button>`).join('')}</div>`:''}
    <p class="mono" style="margin-top:12px;font-size:12px;color:var(--steel)">${esc(p.b).toUpperCase()} · ${esc(p.cat).toUpperCase()}${p.prem?' · 100% ORIGINAL':''}</p>
    <p class="num bigp">${w?`<s>${money(w)}</s>`:''}<b>${money(eff(p))}</b>${o>0?`<span class="dsc lg">−${o}%</span>`:''}</p>
-   <p class="addichip"><span class="addlogo">${addiLogo()}</span><span><b>Págalo en cuotas con Addi</b><small>Crédito aprobado en minutos, sin tarjeta de crédito</small></span></p>
    ${w?`<p class="savep">${ic('tag')} Ahorras ${money(w-eff(p))} frente al precio anterior</p>`:''}
+   <p class="addichip"><span class="addlogo">${addiLogo()}</span><span><b>Págalo en cuotas con Addi</b><small>Crédito aprobado en minutos, sin tarjeta de crédito</small></span></p>
    ${wsOn()&&p.ws?`<p class="wsn big">${ic('tag')} Compra por mayor: desde ${p.ws.min} unidades a ${money(p.ws.price)} c/u</p>`:''}
-   <ul class="specs">${specLines(p.spec).map(s=>`<li>${esc(s)}</li>`).join('')}<li>${ic('shield')} Garantía directa de ${wtxt(p.w)}</li></ul>
+   <div class="pdesc">${esc(String(p.spec||'').replace(/ \/ /g,'\n').trim())}</div><p class="pwar">${ic('shield')} Garantía directa de ${wtxt(p.w)}</p>
    <p>${out?'<span class="pill dark">Agotado</span>':p.stock<=3?`<span class="pill warn">Quedan ${p.stock}</span>`:`<span class="pill ok">${p.stock} disponibles</span>`}</p>`+relHTML(p),
    {foot:`<button class="btn alt" data-act="close">Cancelar</button><button class="btn alt" data-act="share:${p.id}">${ic('share')} Compartir</button><a class="btn alt" target="_blank" rel="noopener" data-act="ask:${p.id}" href="https://wa.me/${waNum()}?text=${encodeURIComponent('Hola, quiero información de: '+p.n)}">${ic('wa')} Preguntar</a><button class="btn sig" data-act="add:${p.id}" ${out?'disabled':''}>${ic('cart')} Agregar al carrito</button>`});
 }
@@ -1994,7 +2003,7 @@ function tProductos(){
   <div class="card box">${S.products.map(p=>`<div class="row"><div class="l"><b>${esc(p.n)}</b><small class="num">${money(p.price)} · ${esc(p.cat)} · ${wtxt(p.w)} de garantía${p.ws?' · por mayor '+money(p.ws.price)+' desde '+p.ws.min:''}${p.base?' · base vendedores '+money(p.base):''}</small></div>
    <div class="rt"><div class="step-q"><button data-act="stock:${p.id}:-1" aria-label="Restar stock">−</button><span>${p.stock}</span><button data-act="stock:${p.id}:1" aria-label="Sumar stock">+</button></div>
    <select class="stsel" data-st="${p.id}" aria-label="Estado de ${esc(p.n)}"><option value="activo" ${p.st==='activo'?'selected':''}>Activo</option><option value="borrador" ${p.st==='borrador'?'selected':''}>Borrador</option><option value="inactivo" ${p.st==='inactivo'?'selected':''}>Inactivo</option></select>
-   <button class="btn sm alt" data-act="editp:${p.id}">Editar</button></div></div>`).join('')}</div>`;
+   <button class="btn sm alt" data-act="editp:${p.id}">Editar</button><button class="btn sm alt dng" data-act="delp:${p.id}" aria-label="Eliminar ${esc(p.n)}">${ic('trash')}</button></div></div>`).join('')}</div>`;
 }
 
 /* ===== categorías editables ===== */
@@ -2158,7 +2167,7 @@ function openProd(id){
    <div class="fld"><label>Precio por mayor ${proTag()}</label><div class="two2"><input id="p-wp" type="number" min="0" step="1000" placeholder="Precio c/u" ${lock} value="${p.ws?p.ws.price:''}" aria-label="Precio por mayor"><input id="p-wm" type="number" min="2" placeholder="Desde (uds)" ${lock} value="${p.ws?p.ws.min:''}" aria-label="Unidades mínimas"></div></div>
    <span class="lbl">Colores disponibles</span>${cs.map((c,i)=>`<div class="colr"><input type="color" id="p-ch${i}" value="${c.h||'#0091FA'}" aria-label="Color ${i+1}"><input type="text" id="p-cn${i}" placeholder="Nombre del color" value="${esc(c.n)}" aria-label="Nombre del color ${i+1}"></div>`).join('')}
    <div class="aib"><div><b>${ic('spark')} Imagen con IA</b><small>${pro()?'Ilimitadas':'Te quedan '+Math.max(0,FREE_AI-S.ai.used)+' de '+FREE_AI}</small></div><button class="btn sm alt" type="button" data-act="aigen">Generar imagen</button></div></form>`,
-   {foot:'<button class="btn alt" data-act="close">Cancelar</button><button class="btn sig" type="submit" form="f-prod">Guardar</button>'});
+   {foot:(id?`<button class="btn alt dng" type="button" data-act="delp:${id}">${ic('trash')} Eliminar</button>`:'')+'<button class="btn alt" data-act="close">Cancelar</button><button class="btn sig" type="submit" form="f-prod">Guardar</button>'});
   renderThumbs();oldHint();
 }
 function saveProd(f){
@@ -2480,6 +2489,8 @@ document.addEventListener('click',e=>{
    case 'pfdel':profAv='del';$('#pf-pic').innerHTML=avHTML();break;
    case 'editcat':openCat(+x);break;
    case 'delcat':delCat(+x);break;
+   case 'delp':{const p=P(+x);if(!p)break;modal('Eliminar producto',`<p>¿Eliminar <b>${esc(p.n)}</b>?</p><p style="margin-top:8px;color:var(--steel)">Dejará de verse en la tienda y no se puede deshacer. Si solo quieres ocultarlo por ahora, cámbialo a <b>Borrador</b> o <b>Inactivo</b>.</p>`,{foot:`<button class="btn alt" data-act="close">Cancelar</button><button class="btn sig dng2" data-act="delp2:${p.id}">Sí, eliminar</button>`});break}
+   case 'delp2':{const id=+x,i=S.products.findIndex(q=>q.id===id);if(i<0)break;const nm=S.products[i].n;S.products.splice(i,1);S.combos.forEach(c=>{c.ids=(c.ids||[]).filter(k=>k!==id)});S.combos=S.combos.filter(c=>(c.ids||[]).length>=2);if(S.deal&&S.deal.id===id){const f=S.products.find(isAct);S.deal.id=f?f.id:0}S.cart=S.cart.filter(l=>l.id!==id);delete S.sel[id];closeModal();renderPanel();if($('#grid'))renderGrid();badge();toast('Producto eliminado: '+nm);break}
    case 'delcat2':{const c=CATS[+x];if(c&&!catN(c)){CATS.splice(+x,1);delete CATART[c];if(S.cat===c)S.cat='Todo'}closeModal();rp();toast('Categoría eliminada');break}
    case 'order':openOrder(+x);break;
    case 'paid':{const o=S.orders.find(k=>k.id===+x);o.paid=true;openOrder(o.id);rp();break}
