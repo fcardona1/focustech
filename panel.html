@@ -1115,9 +1115,8 @@ body{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:auto;padding
 /* ===== móvil: pantalla estática, sin movimiento lateral, ajustada a cada ancho ===== */
 html,body{max-width:100%;overflow-x:hidden}
 .view,.pmain{overflow-x:hidden;overscroll-behavior-x:none;touch-action:pan-y}
-.view *{max-width:100%}
 .tsin,.ticker,.chips,.thumbs,.cphs{touch-action:pan-x pan-y}
-img,video,canvas,svg{max-width:100%}
+img,video,canvas{max-width:100%}
 @media(max-width:700px){
   .ptop{gap:6px;padding:8px 10px;flex-wrap:nowrap}
   .ptop .logo{flex:0 1 auto;min-width:0;display:block;overflow:hidden}
@@ -1129,6 +1128,37 @@ img,video,canvas,svg{max-width:100%}
   .ptop .hm{display:none}
 }
 @media(max-width:400px){.ptop .logo img{height:22px!important}.ptop .r{gap:4px}.ptop .r .btn.sm,.ptop .r .bell,.ptop .r .avatar{width:34px;min-width:34px;height:34px;min-height:34px}}
+
+/* ===== hero más bajo en web + novedades ===== */
+@media(min-width:821px){
+  .hero{max-width:1180px;margin-left:auto;margin-right:auto}
+  .hsl{padding:18px 40px 40px;min-height:0}
+  .sl-art{max-height:210px}
+  .collage{max-width:230px;max-height:210px}
+  .bigart{max-width:190px;border-radius:26px}
+  .hero h1{font-size:clamp(26px,2.6vw,36px)}.hero h2{font-size:clamp(22px,2.2vw,30px)}
+  .sl-sp{max-width:58ch}
+}
+.bigart.nimg,.bigart.nspark{overflow:hidden;padding:0}
+.bigart.nimg img,.bigart .nimgp{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+.bigart.nspark{background:linear-gradient(135deg,#0A3D93,#0091FA)}
+.bigart.nspark .ico{width:46%;height:46%;color:#fff}
+.nwth{width:44px;height:44px;flex:none;border-radius:12px;overflow:hidden;display:grid;place-items:center;background:rgba(0,145,250,.16);color:#7CC7FF}
+.nwth img{width:100%;height:100%;object-fit:cover}.nwth .ico{width:20px;height:20px}
+.nwimg{display:flex;gap:12px;align-items:center}
+.nwpv{width:84px;height:84px;flex:none;border-radius:14px;overflow:hidden;display:grid;place-items:center;background:rgba(0,145,250,.14);color:#7CC7FF;border:1px solid var(--line)}
+.nwpv img{width:100%;height:100%;object-fit:cover}.nwpv .ico{width:28px;height:28px}
+@media(min-width:821px){
+  .hero .hs{height:270px}
+  .hsl{height:270px;padding:14px 40px 34px;align-content:center}
+  .sl-art{max-height:190px}.collage{max-width:205px;max-height:190px}.bigart{max-width:170px}
+  .wslist{display:none}
+  .hero .sl-tx{gap:8px}
+  .hero .cd span{padding:4px 8px;min-width:50px}.hero .cd b{font-size:16px}
+  .hero .dpr{margin:0}
+  .hero .sl-sp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+}
+@media(min-width:821px){.hero .hs{height:300px}.hsl{height:300px;padding:16px 40px 44px}}
 
 </style>
 </head>
@@ -1283,6 +1313,7 @@ const S={
   mk(9,'Monitor Samsung 27" curvo','Samsung','27" Full HD / Curvo / 75 Hz / HDMI',899000,0,'Monitores','monitor',0,12),
   mk(10,'SSD Kingston NV2 1 TB','Kingston','NVMe M.2 / Lectura 3.500 MB/s / 1 TB',279000,25,'Almacenamiento','ssd',3,12,{price:245000,min:4})
  ],
+ news:[],
  combos:[
   {id:'trabajo',n:'Trabajo en casa',tag:'Productividad',ids:[1,7,10],pct:7,on:true},
   {id:'estudio',n:'Estudio y música',tag:'Móvil',ids:[4,5],pct:6,on:true},
@@ -1531,6 +1562,12 @@ function slideReal(){
    <div class="cta"><button class="btn sig" data-act="goto:catalogo">Ver productos</button><button class="btn alt-d" data-act="cita">${ic('calendar')} Agendar cita en el Showroom</button></div></div>
    <div class="sl-art"><div class="collage">${pick.map((p,i)=>`<div class="cl c${i}" style="background:${p.tint}">${artP(p,i%cols(p).length)}</div>`).join('')}</div></div>`;
 }
+function slideNews(n){
+  const p=n.pid?P(+n.pid):null,pm=p&&isAct(p)?pmedia(p):[],pi=pm.find(m=>m.t==='img');
+  const art=n.img?`<div class="bigart nimg"><img src="${n.img}" alt=""></div>`:(p&&isAct(p))?`<div class="bigart" style="background:${p.tint}">${pi?`<img class="nimgp" src="${pi.u}" alt="">`:artP(p,S.sel[p.id]||0)}</div>`:`<div class="bigart nspark">${ic('spark')}</div>`;
+  const cta=p&&isAct(p)?`<button class="btn sig" data-act="open:${p.id}">${esc(n.btn||'Ver producto')}</button><button class="btn alt-d" data-act="goto:catalogo">Ver catálogo</button>`:`<button class="btn sig" data-act="goto:catalogo">${esc(n.btn||'Ver productos')}</button>`;
+  return `<div class="sl-tx"><span class="tag solid">${ic('spark')} ${esc(n.tag||'Novedad')}</span><h2>${esc(n.t)}</h2>${n.d?`<p class="sl-sp">${esc(n.d)}</p>`:''}<div class="cta">${cta}</div></div><div class="sl-art">${art}</div>`;
+}
 function slideDeal(){
   const p=P(S.deal.id),i=S.sel[p.id]||0;
   return `<div class="sl-tx"><span class="tag solid">${ic('bolt')} Oferta del día</span><h2>${esc(p.n)}</h2><p class="sl-sp">${esc(specShort(p.spec,3))}</p>
@@ -1553,7 +1590,7 @@ function slideWs(list){
    <div class="sl-art"><div class="collage">${top.map((p,i)=>`<div class="cl c${i}" style="background:${p.tint}">${artP(p,0)}</div>`).join('')}</div></div>`;
 }
 function slides(){
-  const out=[slideReal()];
+  const out=(S.news||[]).filter(n=>n.on!==false&&n.t).map(slideNews);out.push(slideReal());
   if(dealOn())out.push(slideDeal());
   const cb=activeCombos();if(cb.length)out.push(slideCombo(cb[0]));
   const ws=shopProducts().filter(p=>p.ws);if(wsOn()&&ws.length)out.push(slideWs(ws));
@@ -1963,7 +2000,7 @@ function renderPanel(){
   const badgeOf=t=>t==='pedidos'?pe:t==='citas'?cp:0;
   const navbtn=t=>`<button class="nv ${S.tab===t[0]?'on':''}" data-act="tab:${t[0]}">${ic(t[2])}<span>${t[1]}</span>${badgeOf(t[0])?`<span class="cnt">${badgeOf(t[0])}</span>`:''}</button>`;
   const bt=tabs.filter(t=>BOT.includes(t[0])),more=tabs.filter(t=>!BOT.includes(t[0]));
-  const fab=vd||S.tab==='stats'?null:S.tab==='vendedores'?['newv','Nuevo vendedor']:S.tab==='cupones'?['newc','Nuevo cupón']:S.tab==='productos'&&S.ptab==='combos'?['newcombo','Nuevo combo']:['newp','Nuevo producto'];
+  const fab=vd||S.tab==='stats'?null:S.tab==='vendedores'?['newv','Nuevo vendedor']:S.tab==='cupones'?['newc','Nuevo cupón']:S.tab==='productos'&&S.ptab==='combos'?['newcombo','Nuevo combo']:S.tab==='productos'&&S.ptab==='novedades'?['newnews','Nueva novedad']:['newp','Nuevo producto'];
   v.innerHTML=`<aside class="side">${logo('bienvenida')}<nav>${tabs.map(navbtn).join('')}</nav>${vd||PROD?'':`<div class="plan-chip ${pro()?'pro':''}">${ic('crown')}<span>Plan ${pro()?'Pro':'Gratis'}</span><button data-act="tab:plan">${pro()?'Ver':'Mejorar'}</button></div>`}<div class="by">${onySeal('side')}</div></aside>
   <div class="pmain"><header class="ptop">${logo('bienvenida')}<div class="r">${vd?'':`<button class="bell ${unreadN()?'ring':''}" data-act="bell" aria-label="Notificaciones: ${unreadN()} nuevas">${ic('bell')}${unreadN()?`<b class="cnt">${unreadN()}</b>`:''}</button>`}<a class="btn sm alt" href="#${shopGo}" data-act="go:${shopGo}" aria-label="Ir a la tienda">${ic('store')} <span class="hm">Tienda</span></a><button class="btn sm alt" data-act="sharestore" aria-label="Compartir enlace de la tienda" title="Compartir enlace de la tienda">${ic('share')} <span class="hm">Compartir</span></button><button class="btn sm alt" data-act="logout" aria-label="Cerrar sesión">${ic('out')} <span class="hm">Cerrar sesión</span></button><button class="avatar" data-act="profile" title="Mi perfil" aria-label="Mi perfil">${S.user.avatar?`<img src="${esc(S.user.avatar)}" alt="">`:esc(S.user.name[0])}</button></div></header>
   <main class="pbody">${({resumen:tResumen,stats:tStats,pedidos:tPedidos,productos:tProductos,citas:tCitas,clientes:tClientes,cupones:tCupones,pagos:tPagos,integra:tIntegra,plan:tPlan,eco:tEco,vendedores:tVendedores,vres:vResumen,vcat:vCatalogo,vven:vVentas})[S.tab]()}</main>${footer()}</div>
@@ -2029,10 +2066,11 @@ function tPedidos(){return head('Pedidos','Toca un pedido para cobrarlo, generar
 
 /* --- productos --- */
 function tProductos(){
-  const sub=[['lista','Productos'],['cats','Categorías'],['combos','Combos'],['oferta','Oferta del día']];
+  const sub=[['lista','Productos'],['cats','Categorías'],['combos','Combos'],['oferta','Oferta del día'],['novedades','Novedades']];
   const nav=`<div class="subtabs">${sub.map(s=>`<button class="chip ${S.ptab===s[0]?'on':''}" data-act="ptab:${s[0]}">${s[1]}</button>`).join('')}</div>`;
   if(S.ptab==='cats')return head('Categorías','Las categorías aparecen como botones en la tienda. Puedes cambiarles el nombre y el dibujo, crear nuevas o eliminar las que no uses.')+nav+tCats();
   if(S.ptab==='combos')return head('Combos','Agrupa productos con un descuento. En la tienda se aplica solo cuando el cliente tiene todos en el carrito.')+nav+tCombos();
+  if(S.ptab==='novedades')return head('Novedades','Escribe noticias, productos nuevos o avisos. Aparecen primero en el banner de la tienda y rotan solas.')+nav+tNews();
   if(S.ptab==='oferta')return head('Oferta del día','Elige un producto y su descuento. Se destaca en el carrusel de la tienda con cuenta regresiva hasta la medianoche.')+nav+tOferta();
   const used=S.products.length;
   return head('Productos','Cada producto puede estar activo, en borrador o inactivo. Solo los activos se ven en la tienda.')+nav+
@@ -2045,6 +2083,37 @@ function tProductos(){
 
 /* ===== categorías editables ===== */
 const catN=n=>S.products.filter(p=>p.cat===n).length;
+function tNews(){
+  const L=S.news||[];
+  return (L.length?`<div class="card box">${L.map((n,i)=>`<div class="row"><div class="l" style="display:flex;align-items:center;gap:12px"><span class="nwth">${n.img?`<img src="${n.img}" alt="">`:ic('spark')}</span><div><b>${esc(n.t)}</b><small>${esc(n.tag||'Novedad')}${n.pid&&P(+n.pid)?' · '+esc(P(+n.pid).n):''}${n.on===false?' · oculta':' · se muestra en la tienda'}</small></div></div>
+   <div class="rt"><button class="btn sm alt" data-act="tognews:${i}">${n.on===false?'Mostrar':'Ocultar'}</button><button class="btn sm alt" data-act="editnews:${i}">Editar</button><button class="btn sm alt dng" data-act="delnews:${i}" aria-label="Eliminar">${ic('trash')}</button></div></div>`).join('')}</div>`:`<div class="card box"><p style="padding:6px 2px">Aún no hay novedades. Crea la primera: puede ser un producto nuevo, una promoción o un aviso importante.</p></div>`)+`<button class="btn sig" data-act="newnews" style="margin-top:14px">${ic('plus')} Nueva novedad</button>`;
+}
+let NWIMG=null;
+function openNews(i){
+  const n=i>=0?S.news[i]:{tag:'Novedad',t:'',d:'',pid:'',btn:'',on:true,img:''};NWIMG=n.img||null;
+  modal(i>=0?'Editar novedad':'Nueva novedad',`<form id="f-news" data-i="${i}">
+   <div class="fld"><label for="nw-g">Etiqueta</label><select id="nw-g">${['Novedad','Nuevo','Oferta','Aviso','Evento'].map(t=>`<option ${n.tag===t?'selected':''}>${t}</option>`).join('')}</select></div>
+   <div class="fld"><label for="nw-t">Título</label><input id="nw-t" type="text" maxlength="60" value="${esc(n.t)}" placeholder="Ej: Llegaron los nuevos audífonos" required></div>
+   <div class="fld"><label for="nw-d">Texto (opcional)</label><textarea id="nw-d" maxlength="180" placeholder="Una frase corta que invite a comprar">${esc(n.d||'')}</textarea></div>
+   <div class="fld"><label for="nw-p">Producto relacionado (opcional)</label><select id="nw-p"><option value="">Ninguno</option>${S.products.map(p=>`<option value="${p.id}" ${+n.pid===p.id?'selected':''}>${esc(p.n)}</option>`).join('')}</select><small class="hint">Si eliges uno, el banner trae su botón para abrirlo.</small></div>
+   <div class="fld"><label for="nw-b">Texto del botón (opcional)</label><input id="nw-b" type="text" maxlength="24" value="${esc(n.btn||'')}" placeholder="Ej: Ver producto"></div>
+   <div class="fld"><label>Imagen (opcional)</label><div class="nwimg"><div class="nwpv" id="nw-pv">${NWIMG?`<img src="${NWIMG}" alt="">`:ic('spark')}</div><div><label class="btn sm alt" for="nw-img">${ic('plus')} Subir imagen</label><input id="nw-img" type="file" accept="image/*" class="sr"><button type="button" class="btn sm alt" data-act="nwimgdel">Quitar</button><small class="hint" style="display:block;margin-top:6px">Se ajusta sola a cuadrado. Si no subes una, se usa la foto del producto.</small></div></div></div>
+   <label class="chk"><input type="checkbox" id="nw-on" ${n.on!==false?'checked':''}> Mostrar en la tienda</label><p class="hint" id="nw-err" style="color:#FF8A8A"></p></form>`,
+   {foot:'<button class="btn alt" data-act="close">Cancelar</button><button class="btn sig" type="submit" form="f-news">Guardar</button>'});
+}
+function newsImgPick(file){
+  if(!file||!file.type.startsWith('image/'))return;
+  const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=900;const x=c.getContext('2d'),s=Math.max(900/im.width,900/im.height);x.fillStyle='#fff';x.fillRect(0,0,900,900);x.drawImage(im,(900-im.width*s)/2,(900-im.height*s)/2,im.width*s,im.height*s);NWIMG=c.toDataURL('image/jpeg',.86);const pv=$('#nw-pv');if(pv)pv.innerHTML=`<img src="${NWIMG}" alt="">`};im.src=r.result};r.readAsDataURL(file);
+}
+async function saveNews(f){
+  const i=+f.dataset.i,t=$('#nw-t').value.trim();if(!t){$('#nw-err').textContent='Escribe un título.';return}
+  const btn=f.closest('.msheet')&&f.closest('.msheet').querySelector('button[type=submit]');if(btn)btn.disabled=true;
+  let img=NWIMG||'';
+  try{if(PROD&&/^data:/.test(img))img=await uploadDataUrl(img)}catch(e){toast('No pudimos subir la imagen. Revisa tu conexión e inténtalo de nuevo.');if(btn)btn.disabled=false;return}
+  const d={id:i>=0?S.news[i].id:Date.now(),tag:$('#nw-g').value,t,d:$('#nw-d').value.trim(),pid:$('#nw-p').value?+$('#nw-p').value:'',btn:$('#nw-b').value.trim(),img,on:$('#nw-on').checked};
+  if(i>=0)S.news[i]=d;else S.news.unshift(d);
+  closeModal();renderPanel();if($('#grid')||$('#v-shop .hero')){try{renderShop()}catch(_){}}toast('Novedad guardada');
+}
 function tCats(){
   return `<div class="card box">${CATS.map((c,i)=>`<div class="row"><div class="l" style="display:flex;align-items:center;gap:12px"><span style="width:44px;height:44px;flex:none;display:grid;place-items:center">${art(CATART[c]||'ssd')}</span><div><b>${esc(c)}</b><small>${catN(c)} producto${catN(c)===1?'':'s'}</small></div></div>
    <div class="rt"><button class="btn sm alt" data-act="editcat:${i}">Editar</button><button class="btn sm alt" data-act="delcat:${i}">Eliminar</button></div></div>`).join('')}</div>
@@ -2537,6 +2606,12 @@ document.addEventListener('click',e=>{
      if(navigator.share){navigator.share({title:'FOCUSTECH',text:'Mira la tienda de FOCUSTECH',url}).catch(()=>{})}
      else modal('Compartir la tienda',`<div class="shp"><div><b>FOCUSTECH</b><span class="num" style="word-break:break-all">${esc(url)}</span></div></div><div class="shg"><a class="btn alt" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(txt)}">${ic('wa')} WhatsApp</a><button class="btn alt" data-act="copystore">${ic('copy')} Copiar enlace</button></div>`,{foot:'<button class="btn sig" data-act="close">Listo</button>'});break}
    case 'copystore':{const url=PROD?location.origin+'/':location.href.split('#')[0];try{navigator.clipboard.writeText(url).then(()=>toast('Enlace de la tienda copiado'),()=>toast('No se pudo copiar'))}catch(e){toast('No se pudo copiar')}break}
+   case 'newnews':openNews(-1);break;
+   case 'editnews':openNews(+x);break;
+   case 'tognews':{const n=S.news[+x];if(n){n.on=n.on===false;rp()}break}
+   case 'delnews':{const n=S.news[+x];if(!n)break;modal('Eliminar novedad',`<p>¿Eliminar <b>${esc(n.t)}</b>? Dejará de verse en el banner de la tienda.</p>`,{foot:`<button class="btn alt" data-act="close">Cancelar</button><button class="btn sig dng2" data-act="delnews2:${x}">Sí, eliminar</button>`});break}
+   case 'delnews2':{S.news.splice(+x,1);closeModal();rp();toast('Novedad eliminada');break}
+   case 'nwimgdel':{NWIMG=null;const pv=$('#nw-pv');if(pv)pv.innerHTML=ic('spark');break}
    case 'delp':{const p=P(+x);if(!p)break;modal('Eliminar producto',`<p>¿Eliminar <b>${esc(p.n)}</b>?</p><p style="margin-top:8px;color:var(--steel)">Dejará de verse en la tienda y no se puede deshacer. Si solo quieres ocultarlo por ahora, cámbialo a <b>Borrador</b> o <b>Inactivo</b>.</p>`,{foot:`<button class="btn alt" data-act="close">Cancelar</button><button class="btn sig dng2" data-act="delp2:${p.id}">Sí, eliminar</button>`});break}
    case 'delp2':{const id=+x,i=S.products.findIndex(q=>q.id===id);if(i<0)break;const nm=S.products[i].n;S.products.splice(i,1);S.combos.forEach(c=>{c.ids=(c.ids||[]).filter(k=>k!==id)});S.combos=S.combos.filter(c=>(c.ids||[]).length>=2);if(S.deal&&S.deal.id===id){const f=S.products.find(isAct);S.deal.id=f?f.id:0}S.cart=S.cart.filter(l=>l.id!==id);delete S.sel[id];closeModal();renderPanel();if($('#grid'))renderGrid();badge();toast('Producto eliminado: '+nm);break}
    case 'delcat2':{const c=CATS[+x];if(c&&!catN(c)){CATS.splice(+x,1);delete CATART[c];if(S.cat===c)S.cat='Todo'}closeModal();rp();toast('Categoría eliminada');break}
@@ -2610,6 +2685,7 @@ document.addEventListener('submit',e=>{
     S.user={email:em,name:u.name,admin:!!u.admin,vendor:u.vendor||null};S.tab='resumen';saveSession(em,$('#l-r').checked);S.anim=true;rp(true);
   }else if(f.id==='f-prod'){if(PROD)uploadMedia().then(()=>saveProd(f)).catch(()=>toast('No pudimos subir las fotos. Revisa tu conexión e inténtalo de nuevo.'));else saveProd(f)}
   else if(f.id==='f-cat')saveCat(f);
+  else if(f.id==='f-news')saveNews(f);
   else if(f.id==='f-prof')saveProfile();
   else if(f.id==='f-guia'){const o=S.orders.find(k=>k.id===+f.dataset.o);o.guia=$('#g-n').value.trim();o.carrier=$('#g-c').value;closeModal();openOrder(o.id);rp();toast('Guía guardada')}
   else if(f.id==='f-vend'){
@@ -2647,6 +2723,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.id==='p-media'){addMedia(t.files);t.value='';return}
+  if(t.id==='nw-img'){newsImgPick(t.files[0]);t.value='';return}
   if(t.classList&&t.classList.contains('mcsel')){const m=formMedia[+t.dataset.i];if(m){if(t.value)m.c=t.value;else delete m.c}return}
   if(t.id==='cart-city'){S.city=t.value;openCart()}
   else if(t.id==='c-city'){saveDraft();S.city=t.value;openCheckout()}
@@ -2695,6 +2772,13 @@ async function authFetch(path,body){
   const r=await fetch(CFG.url+path,{method:'POST',headers:{apikey:CFG.key,'Content-Type':'application/json'},body:JSON.stringify(body)});
   const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error_description||j.msg||j.message||('error '+r.status));return j;
 }
+async function uploadDataUrl(d){
+  const b=await (await fetch(d)).blob(),path='novedades-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
+  await ensureFresh();
+  const r=await fetch(CFG.url+'/storage/v1/object/productos/'+path,{method:'POST',headers:{apikey:CFG.key,Authorization:'Bearer '+AUTH.token,'Content-Type':'image/jpeg'},body:b});
+  if(!r.ok)throw new Error('upload '+r.status);
+  return CFG.url+'/storage/v1/object/public/productos/'+path;
+}
 async function ensureFresh(){
   if(!AUTH||AUTH.exp-60>Date.now()/1e3)return;
   try{const j=await authFetch('/auth/v1/token?grant_type=refresh_token',{refresh_token:AUTH.refresh});setAuth(j,AUTH.remember)}
@@ -2741,7 +2825,7 @@ async function loadPublic(){
   const stock={};sk.forEach(r=>stock[r.pid]=r.n);
   if(M.products)S.products=M.products.map(p=>({...p,stock:stock[p.id]==null?0:stock[p.id]}));
   lastStock={};S.products.forEach(p=>lastStock[p.id]=p.stock);
-  if(M.combos)S.combos=M.combos;if(M.deal)S.deal=M.deal;if(M.coupons)S.coupons=M.coupons;if(M.cities)S.cities=M.cities;
+  if(Array.isArray(M.news))S.news=M.news;if(M.combos)S.combos=M.combos;if(M.deal)S.deal=M.deal;if(M.coupons)S.coupons=M.coupons;if(M.cities)S.cities=M.cities;
   if(Array.isArray(M.cats)&&M.cats.length){CATS.length=0;Object.keys(CATART).forEach(k=>delete CATART[k]);M.cats.forEach(c=>{CATS.push(c.n);CATART[c.n]=c.a})}
   if(M.shop)deepAssign(S.settings,M.shop);
   if(M.vendors)S.vendors=M.vendors.map(v=>({...v,prices:((M.vprices||{})[v.code])||{}}));
@@ -2768,7 +2852,7 @@ const H={};let busy=false;
 function slices(){
   const {pub,sec}=splitSettings(),vf={};S.vendors.forEach(v=>{if(v.email)vf[v.code]={email:v.email}});
   return {
-    products:{pub:true,v:S.products.map(({stock,...p})=>p)},combos:{pub:true,v:S.combos},deal:{pub:true,v:S.deal},coupons:{pub:true,v:S.coupons},cities:{pub:true,v:S.cities},cats:{pub:true,v:CATS.map(n=>({n,a:CATART[n]||'ssd'}))},
+    products:{pub:true,v:S.products.map(({stock,...p})=>p)},combos:{pub:true,v:S.combos},news:{pub:true,v:S.news},deal:{pub:true,v:S.deal},coupons:{pub:true,v:S.coupons},cities:{pub:true,v:S.cities},cats:{pub:true,v:CATS.map(n=>({n,a:CATART[n]||'ssd'}))},
     shop:{pub:true,v:pub},vendors:{pub:true,v:S.vendors.map(({prices,email,...v})=>v)},
     secrets:{pub:false,v:sec},vendors_full:{pub:false,v:vf}
   };
