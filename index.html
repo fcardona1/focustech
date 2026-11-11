@@ -1507,7 +1507,7 @@ const ticker=()=>{
 function trustHTML(){
   const it=[['shield','Garantía directa','De 3 meses a 1 año'],['card','Pago seguro',PROD&&!CFG.online?'Transferencia o contra entrega':'Wompi, Bold o transferencia'],['truck','Envío gratis en Cali','Y contra entrega'],['calendar','Showroom','Agenda tu cita']];
   const row=it.map(([i,t,d])=>`<div class="tc"><span class="tci">${ic(i)}</span><div><b>${t}</b><small>${d}</small></div></div>`).join('');
-  return `<section class="tstrip" aria-label="Por qué comprar aquí"><div class="tsin"><div class="tsm">${row}${row}</div></div></section>`;
+  return `<section class="tstrip" aria-label="Por qué comprar aquí"><div class="tsin"><div class="tsm">${row}${row}${row}${row}</div></div></section>`;
 }
 function combosHTML(){
   const cb=activeCombos();if(!cb.length)return '';
