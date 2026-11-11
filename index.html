@@ -9,6 +9,7 @@
 <meta property="og:title" content="FOCUSTECH · Tecnología premium con respaldo real"><meta property="og:description" content="Compra seguro o agenda tu cita en nuestro Showroom. Garantía directa desde 3 meses hasta 1 año."><meta property="og:type" content="website"><meta property="og:image" content="icons/icon-512.png">
 <link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icons/favicon.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="FOCUSTECH"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script>try{if(/^\/(panel|admin)\/?$/i.test(location.pathname)||location.hash==='#panel'){document.querySelector('link[rel=manifest]').href='/manifest-panel.webmanifest';document.querySelector('meta[name=apple-mobile-web-app-title]').content='FT Panel'}}catch(e){}</script>
 <script src="config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -2415,6 +2416,7 @@ document.addEventListener('change',e=>{
 });
 
 /* ===== rutas ===== */
+function swapManifest(on){const l=document.querySelector('link[rel=manifest]');if(!l)return;const h=on?'/manifest-panel.webmanifest':'/manifest.webmanifest';if(l.getAttribute('href')!==h)l.setAttribute('href',h);const t=document.querySelector('meta[name=apple-mobile-web-app-title]');if(t)t.content=on?'FT Panel':'FOCUSTECH'}
 const CLEAN=PROD&&/^https?:/.test(location.protocol);
 function goPanel(){if(CLEAN){history.pushState(null,'','/panel');route()}else if(location.hash!=='#panel')location.hash='panel';else route()}
 function route(){
@@ -2426,7 +2428,8 @@ function route(){
   const v=(pm||vm)?'tienda':(['bienvenida','tienda','panel','plataforma'].includes(h)?h:'bienvenida');
   const map={bienvenida:'#v-welcome',tienda:'#v-shop',panel:'#v-panel',plataforma:'#v-platform'};
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
-  $(map[v]).classList.add('on');
+  $(map[v]).classList.add('on');swapManifest(v==='panel');
+  if(CLEAN&&v==='panel'&&location.hash==='#panel')history.replaceState(null,'','/panel');
   if(v==='tienda'){countVisit();renderShop();const pid=pm?+pm[1]:(vm&&vm[2]?+vm[2]:0);if(pid&&shopProducts().some(q=>q.id===pid))setTimeout(()=>openProduct(pid),150)}
   if(v==='panel'){S.anim=true;rp(true);if(S.user&&!S.user.vendor&&unreadN())setTimeout(()=>toast('🔔 Tienes '+unreadN()+(unreadN()===1?' pedido nuevo':' pedidos nuevos')+' por despachar'),700)}
   if(v==='bienvenida')renderWelcome();

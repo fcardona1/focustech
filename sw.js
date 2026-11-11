@@ -1,5 +1,5 @@
 /* FOCUSTECH · service worker: la app abre rápido y funciona la carcasa sin internet. Los datos siempre vienen frescos. */
-const V='focustech-v2',SHELL=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','config.js'];
+const V='focustech-v3',SHELL=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','config.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{
@@ -19,7 +19,7 @@ self.addEventListener('push',e=>{
 });
 self.addEventListener('notificationclick',e=>{
   e.notification.close();
-  const url=new URL((e.notification.data&&e.notification.data.url)||'./#panel',self.registration.scope).href;
+  const url=new URL('/panel',self.registration.scope).href;
   e.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(cs=>{
     for(const c of cs){if(c.url.startsWith(self.registration.scope)&&'focus'in c){c.navigate(url).catch(()=>{});return c.focus()}}
     return self.clients.openWindow(url)}));
