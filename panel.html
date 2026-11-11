@@ -989,6 +989,12 @@ body{padding-top:env(safe-area-inset-top)}
 .shb{right:10px;top:10px;width:34px;height:34px;box-shadow:0 4px 12px -4px rgba(0,40,120,.45),0 0 0 1px rgba(0,87,217,.12)}
 .shb:hover{transform:scale(1.08)}
 .grid.d-s .pc .shb{right:7px;top:7px}
+/* v2d: la foto cubre el borde de la tarjeta (sin línea ni esquina cuadrada) */
+.pc{border-width:1px;background-clip:padding-box}
+.pc .tile{margin:-1px -1px 0;border-radius:20px 20px 0 0;background-clip:border-box}
+.pc .tile .ta.media{border-radius:20px 20px 0 0;overflow:hidden}
+.pc:hover{border-color:rgba(0,120,255,.35)}
+.shb{right:11px;top:11px}
 
 </style>
 </head>
