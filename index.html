@@ -983,6 +983,12 @@ body{padding-top:env(safe-area-inset-top)}
   .hero h1{font-size:24px;line-height:1.08}.hero h2{font-size:21px}
   .tc{padding:8px 14px}
 }
+/* v2c: tarjeta limpia al pasar el cursor (sin inclinación 3D) y botón compartir bien puesto */
+.pc{transform-style:flat;overflow:hidden;border-radius:20px;isolation:isolate}
+.pc .tile{border-radius:20px 20px 0 0;overflow:hidden;-webkit-mask-image:-webkit-radial-gradient(white,black);transform:translateZ(0)}
+.shb{right:10px;top:10px;width:34px;height:34px;box-shadow:0 4px 12px -4px rgba(0,40,120,.45),0 0 0 1px rgba(0,87,217,.12)}
+.shb:hover{transform:scale(1.08)}
+.grid.d-s .pc .shb{right:7px;top:7px}
 
 </style>
 </head>
@@ -2280,7 +2286,7 @@ document.addEventListener('pointermove',e=>{
   if(g){const r=g.getBoundingClientRect();g.style.setProperty('--mx',(e.clientX-r.left)+'px');g.style.setProperty('--my',(e.clientY-r.top)+'px')}
   const pc=t.closest('.pc');
   if(tilted&&tilted!==pc){tilted.style.transform='';tilted=null}
-  if(pc&&e.pointerType==='mouse'){const r=pc.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;pc.style.transform='perspective(800px) rotateX('+(-y*6)+'deg) rotateY('+(x*8)+'deg) translateY(-4px)';tilted=pc}
+  if(pc&&e.pointerType==='mouse'){const r=pc.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;pc.style.transform='translateY(-4px)';tilted=pc}
   const z=t.closest('.zone');
   if(z){const r=z.getBoundingClientRect();z.style.setProperty('--px',((e.clientX-r.left)/r.width-.5)*2);z.style.setProperty('--py',((e.clientY-r.top)/r.height-.5)*2)}
 });
