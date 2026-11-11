@@ -1491,7 +1491,7 @@ function payOptions(city){
 function shipNote(sh){
   if(sh.local)return `<p class="sn ok">${ic('truck')}<span><b>Envío gratis en Cali</b> · ${esc(sh.eta)}. Puedes pagar contra entrega.</span></p>`;
   if(!sh.auto)return `<p class="sn">${ic('truck')}<span>Coordinamos el envío contigo por WhatsApp antes de despachar.</span></p>`;
-  return `<p class="sn">${ic('truck')}<span><b>Envío a ${esc(sh.city)} con ${esc(sh.carrier)}: ${money(sh.rate)}</b> · ${esc(sh.eta)}.<br>Se calcula así: flete ${money(sh.flete)} + seguro por el valor de tu pedido ${money(sh.ins)}. Ya está sumado en tu total. Fuera de Cali se paga en línea o por transferencia.</span></p>`;
+  return `<p class="sn">${ic('truck')}<span><b>Envío a ${esc(sh.city)} con ${esc(sh.carrier)}: ${money(sh.rate)}</b> · ${esc(sh.eta)}.</span></p>`;
 }
 function totalsHTML(t){
   return `<div class="tot num"><div><span>Productos</span><b>${money(t.sub)}</b></div>${t.ws>0?`<div class="good"><span>Incluye ahorro por mayor</span><b>−${money(t.ws)}</b></div>`:''}${t.cb?`<div class="good"><span>${t.cbl||('Combo '+t.cbn.map(c=>esc(c.n)).join(', '))}</span><b>−${money(t.cb)}</b></div>`:''}${t.disc?`<div class="good"><span>Cupón ${esc(t.cc||'')}${t.cp?' (−'+t.cp+'%)':''}</span><b>−${money(t.disc)}</b></div>`:''}${t.vs?'<div><span>Entrega y pago</span><b>Los coordina tu asesora</b></div>':`<div><span>Envío${t.sh?' a '+esc(t.sh.city):''}</span><b>${t.sh&&t.sh.local?'Gratis':t.sh&&!t.sh.auto?'Por coordinar':money(t.ship)}</b></div>`}<div class="g"><span>Total a pagar</span><b>${money(t.total)}</b></div></div>`;
