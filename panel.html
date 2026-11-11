@@ -921,6 +921,69 @@ span.aj{flex:1}
 .edsw{width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.35);cursor:pointer;padding:0}.edsw.on{outline:3px solid #0091FA;outline-offset:2px}
 .mth{gap:16px 14px}
 
+/* ===== v2: compacto, fácil de comprar, y respeta el notch / isla dinámica del iPhone ===== */
+body{padding-top:env(safe-area-inset-top)}
+.mback{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+.fab{bottom:calc(78px + env(safe-area-inset-bottom))}
+.wafab{bottom:calc(18px + env(safe-area-inset-bottom))}
+.toast{bottom:calc(86px + env(safe-area-inset-bottom))}
+@media(min-width:900px){.fab{bottom:calc(24px + env(safe-area-inset-bottom))}}
+/* banner compacto */
+.ticker{font-size:10.5px}.tk{padding:6px 0}
+.hero{margin:12px 0 10px;border-radius:22px}
+.hsl{padding:24px 34px 50px;gap:10px}
+.hero h1{font-size:clamp(28px,3.5vw,44px)}
+.hero h2{font-size:clamp(24px,3.2vw,38px)}
+.sl-tx{gap:9px}
+.sl-pts{display:flex;flex-wrap:wrap;gap:8px;max-width:none}
+.sl-pts li{padding:7px 13px;font-size:13px;border-radius:999px}.sl-pts .ico{width:18px;height:18px}
+.hero .cta{margin-top:2px}.hero .cta .btn{padding:11px 18px;font-size:14px}
+.collage{max-width:300px}.bigart{max-width:230px}
+.hnav{bottom:12px}
+.dpr b{font-size:clamp(24px,4vw,32px)}
+.cd b{font-size:19px}.cd span{padding:6px 8px;min-width:54px}
+@media(max-width:820px){
+  .hsl{padding:18px 16px 46px;gap:0}
+  .hero{border-radius:20px;margin:10px 0 8px}
+  .hero h1{font-size:26px}.hero h2{font-size:22px}
+  .sl-art,.sl-pts,.sl-sp,.wslist{display:none}
+  .hero .cta .btn{padding:10px 14px;font-size:13px}
+  .hero .tag.solid{font-size:10px;padding:6px 10px}
+  .sl-flag{font-size:10.5px}.sl-flag svg,.sl-flag img{height:14px;width:auto}
+  .hnav{bottom:10px}.hnav button{width:28px;height:28px}.hnav .hd{width:9px;height:9px}.hnav .hd.on{width:26px}
+}
+/* franja de confianza: compacta y creativa */
+.tstrip{margin:0 0 4px}
+.tsin{display:flex;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 30px -22px rgba(0,60,160,.7);overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tsin::-webkit-scrollbar{display:none}
+.tc{position:relative;flex:1 0 auto;display:flex;align-items:center;gap:10px;padding:9px 18px;scroll-snap-align:start;white-space:nowrap;animation:tcIn .6s cubic-bezier(.2,.9,.25,1) both}
+@keyframes tcIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.tc+.tc::before{content:"";position:absolute;left:0;top:24%;bottom:24%;width:1px;background:linear-gradient(transparent,rgba(0,87,217,.25),transparent)}
+.tci{width:32px;height:32px;flex:none;border-radius:11px;display:grid;place-items:center;background:var(--g);color:#fff;box-shadow:0 8px 16px -8px rgba(0,87,217,.8);transition:transform .25s}
+.tci .ico{width:17px;height:17px}
+.tc:hover .tci{transform:translateY(-2px) rotate(-8deg) scale(1.06)}
+.tc b{display:block;font-size:12.5px;line-height:1.15;color:var(--text)}
+.tc small{display:block;font-size:11px;color:var(--steel);line-height:1.2}
+@media(min-width:900px){.tsin{justify-content:space-between}.tc{justify-content:center}}
+/* catálogo: se ve enseguida */
+.ch{font-size:clamp(20px,2.6vw,26px);margin:14px 0 0}
+.densr{margin-top:6px}
+.shopm .wrap>.sh{margin-top:26px}
+@media(max-width:560px){.rc .ci{transform:scale(.88)}}
+/* v2b: banner aún más bajo */
+.hero{min-height:0}
+.hsl{min-height:0;align-content:center}
+.hsl .sl-tx{justify-content:center}
+@media(min-width:821px){.hsl{padding:20px 34px 44px}.hero h1{font-size:clamp(26px,3vw,38px)}.hero .sl-pts{display:none}.hsl{grid-template-columns:1.2fr .8fr}.collage{max-width:230px}.bigart{max-width:190px}}
+@media(max-width:820px){
+  .hsl{padding:16px 16px 42px}
+  .hero .cta{display:flex;flex-wrap:nowrap;gap:8px}
+  .hero .cta .btn{flex:1 1 auto;white-space:nowrap;padding:10px 12px;font-size:12.5px;justify-content:center}
+  .hero .cta .btn.alt-d svg,.hero .cta .btn.alt-d .ico{display:none}
+  .hero h1{font-size:24px;line-height:1.08}.hero h2{font-size:21px}
+  .tc{padding:8px 14px}
+}
+
 </style>
 </head>
 <body>
@@ -1390,8 +1453,8 @@ const ticker=()=>{
   return `<div class="ticker" aria-label="Beneficios de comprar en FOCUSTECH"><div class="tk">${h}${h}</div></div>`;
 };
 function trustHTML(){
-  const it=[['shield','Garantía directa','De 3 meses a 1 año en cada equipo'],['card','Pago seguro',PROD&&!CFG.online?'Transferencia o contra entrega en Cali':'Wompi y Bold, o transferencia'],['truck','Envío gratis en Cali','Y contra entrega si lo prefieres'],['calendar','Showroom','Agenda tu cita y prueba el equipo']];
-  return `<section class="trust2" aria-label="Por qué comprar aquí">${it.map(([i,t,d])=>`<div class="tr">${ic(i)}<div><b>${t}</b><span>${d}</span></div></div>`).join('')}</section>`;
+  const it=[['shield','Garantía directa','De 3 meses a 1 año'],['card','Pago seguro',PROD&&!CFG.online?'Transferencia o contra entrega':'Wompi, Bold o transferencia'],['truck','Envío gratis en Cali','Y contra entrega'],['calendar','Showroom','Agenda tu cita']];
+  return `<section class="tstrip" aria-label="Por qué comprar aquí"><div class="tsin">${it.map(([i,t,d],k)=>`<div class="tc" style="animation-delay:${k*90}ms"><span class="tci">${ic(i)}</span><div><b>${t}</b><small>${d}</small></div></div>`).join('')}</div></section>`;
 }
 function combosHTML(){
   const cb=activeCombos();if(!cb.length)return '';
@@ -1434,12 +1497,11 @@ function renderShop(){
    <div class="search">${ic('search')}<input id="q" type="text" placeholder="Busca portátiles, audífonos, monitores" aria-label="Buscar productos" value="${esc(S.q)}"></div>
    <div class="push"><button class="lnk" data-act="cita">Showroom</button>${(!PROD||S.user)?'<a class="lnk" href="#panel" data-act="go:panel">Panel</a>':''}<button class="cartbtn" data-act="cart" aria-label="Abrir carrito">${ic('cart')}<span>Carrito</span><span class="cnt" id="cnt">${cartCount()}</span></button></div></div></header>
   ${ticker()}${vribbon()}
-  <main class="shopm"><div class="wrap">${heroHTML()}${trustHTML()}${combosHTML()}
-   ${premBand()}
+  <main class="shopm"><div class="wrap">${heroHTML()}${trustHTML()}
    <h2 class="ch" id="catalogo"><span class="l">Todo el</span> <b>catálogo</b></h2>
    <div class="tools"><div class="chips" id="chips"></div></div>
    <div class="densr"><label class="sortw"><span class="sr">Ordenar</span><select id="sort" aria-label="Ordenar productos"><option value="rel">Destacados</option><option value="asc">Menor precio</option><option value="desc">Mayor precio</option></select></label><span class="dl">Tamaño de las tarjetas</span><div class="dens" role="group" aria-label="Tamaño de las tarjetas">${[['s','d3','Pequeñas'],['m','d2','Medianas'],['l','d1','Grandes']].map(([k,i,l])=>`<button class="${S.dens===k?'on':''}" data-act="dens:${k}" aria-pressed="${S.dens===k}" title="${l}">${ic(i)}<b>${l}</b></button>`).join('')}</div></div>
-   <div id="grid"></div>${showroomBand()}${warrantyBand()}${socialBand()}</div></main>${footer('HB')}${waFab()}`;
+   <div id="grid"></div>${combosHTML()}${premBand()}${showroomBand()}${warrantyBand()}${socialBand()}</div></main>${footer('HB')}${waFab()}`;
   $('#sort').value=S.sort;renderChips();renderGrid();startCD();startHero();
 }
 function renderChips(){
