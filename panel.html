@@ -1092,6 +1092,20 @@ body{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:auto;padding
 .btn.dng2{background:linear-gradient(135deg,#D6334C,#F0506A)!important;color:#fff!important}
 .rt .dng{padding:0 10px;min-width:38px}
 .rt .dng .ico{width:16px;height:16px}
+/* fotos por color, dentro de la sección de colores */
+.mcsel{display:none}
+.mcb{position:absolute;left:4px;bottom:4px;max-width:calc(100% - 8px);padding:2px 7px;border-radius:99px;background:#0057D9;color:#fff;font-size:10px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mt em+.mcb,.mt .mcb{bottom:4px}
+.mt em{bottom:auto;top:4px;left:4px;right:auto}
+.cph{margin:-2px 0 10px 54px}
+.cph small{display:block;font-size:12px;color:var(--steel);margin-bottom:6px}
+.cph small b{color:var(--text)}
+.cphs{display:flex;gap:8px;flex-wrap:wrap}
+.cphb{position:relative;width:52px;height:52px;padding:0;border-radius:12px;overflow:hidden;border:2px solid rgba(255,255,255,.18);background:#fff}
+.cphb img{width:100%;height:100%;object-fit:cover;display:block}
+.cphb.on{border-color:#00B7FF;box-shadow:0 0 0 3px rgba(0,183,255,.3)}
+.cphb.oth{opacity:.45}
+.cphb i{position:absolute;right:2px;top:2px;width:18px;height:18px;border-radius:50%;background:#00B7FF;color:#fff;font:800 11px/18px sans-serif;text-align:center;font-style:normal}
 
 </style>
 </head>
@@ -2165,7 +2179,7 @@ function openProd(id){
    <div class="fld"><label for="p-e">Estado</label><select id="p-e"><option value="activo" ${p.st==='activo'?'selected':''}>Activo: visible en la tienda</option><option value="borrador" ${p.st==='borrador'?'selected':''}>Borrador: lo sigues preparando</option><option value="inactivo" ${p.st==='inactivo'?'selected':''}>Inactivo: oculto, pero guardado</option></select></div>
    <div class="fld"><label for="p-w">Garantía directa</label><select id="p-w">${[3,6,9,12].map(m=>`<option value="${m}" ${p.w===m?'selected':''}>${wtxt(m)}</option>`).join('')}</select></div>
    <div class="fld"><label>Precio por mayor ${proTag()}</label><div class="two2"><input id="p-wp" type="number" min="0" step="1000" placeholder="Precio c/u" ${lock} value="${p.ws?p.ws.price:''}" aria-label="Precio por mayor"><input id="p-wm" type="number" min="2" placeholder="Desde (uds)" ${lock} value="${p.ws?p.ws.min:''}" aria-label="Unidades mínimas"></div></div>
-   <span class="lbl">Colores disponibles</span>${cs.map((c,i)=>`<div class="colr"><input type="color" id="p-ch${i}" value="${c.h||'#0091FA'}" aria-label="Color ${i+1}"><input type="text" id="p-cn${i}" placeholder="Nombre del color" value="${esc(c.n)}" aria-label="Nombre del color ${i+1}"></div>`).join('')}
+   <span class="lbl">Colores disponibles</span>${cs.map((c,i)=>`<div class="colr"><input type="color" id="p-ch${i}" value="${c.h||'#0091FA'}" aria-label="Color ${i+1}"><input type="text" id="p-cn${i}" placeholder="Nombre del color" value="${esc(c.n)}" aria-label="Nombre del color ${i+1}"></div><div class="cph" id="cph${i}"></div>`).join('')}
    <div class="aib"><div><b>${ic('spark')} Imagen con IA</b><small>${pro()?'Ilimitadas':'Te quedan '+Math.max(0,FREE_AI-S.ai.used)+' de '+FREE_AI}</small></div><button class="btn sm alt" type="button" data-act="aigen">Generar imagen</button></div></form>`,
    {foot:(id?`<button class="btn alt dng" type="button" data-act="delp:${id}">${ic('trash')} Eliminar</button>`:'')+'<button class="btn alt" data-act="close">Cancelar</button><button class="btn sig" type="submit" form="f-prod">Guardar</button>'});
   renderThumbs();oldHint();
@@ -2230,11 +2244,18 @@ function simOrder(){
 const colNames=()=>[0,1,2,3].map(i=>{const e=$('#p-cn'+i);return e?e.value.trim():''}).filter(Boolean);
 function colSel(m,i){const ns=colNames();if(ns.length<1)return '';if(m.c&&!ns.includes(m.c))delete m.c;
   return `<select class="mcsel" data-i="${i}" aria-label="Color de esta foto"><option value="">Todos los colores</option>${ns.map(n=>`<option value="${esc(n)}" ${m.c===n?'selected':''}>${esc(n)}</option>`).join('')}</select>`}
+function renderColPhotos(){
+  const imgs=formMedia.map((m,k)=>({m,k})).filter(x=>x.m.t==='img');
+  for(let i=0;i<4;i++){const b=$('#cph'+i);if(!b)continue;const e=$('#p-cn'+i),n=e?e.value.trim():'';
+    if(!n||!imgs.length){b.innerHTML='';continue}
+    b.innerHTML=`<small>Toca las fotos que son de <b>${esc(n)}</b>:</small><div class="cphs">${imgs.map(({m,k})=>`<button type="button" class="cphb ${m.c===n?'on':''} ${m.c&&m.c!==n?'oth':''}" data-act="cph:${i}:${k}" aria-label="Foto ${k+1}"><img src="${m.u}" alt="">${m.c===n?'<i>✓</i>':''}</button>`).join('')}</div>`}
+}
 function renderThumbs(){
   const b=$('#mth');if(!b)return;
   const n=formMedia.length;
-  b.innerHTML=formMedia.map((m,i)=>`<div class="mt2"><div class="mt">${m.t==='vid'?`<video src="${m.u}" muted preload="metadata"></video><i class="vplay sm">${ic('play')}</i>`:`<img src="${m.u}" alt="">`}${i===0?'<em>Portada</em>':''}<button type="button" data-act="mrm:${i}" aria-label="Quitar archivo">${ic('x')}</button></div>
-   ${colSel(m,i)}<div class="mtb"><button type="button" data-act="mmv:${i}:-1" ${i===0?'disabled':''} aria-label="Mover antes">‹</button>${m.t==='img'?`<button type="button" class="aj" data-act="edit:${i}">Ajustar</button>`:'<span class="aj"></span>'}<button type="button" data-act="mmv:${i}:1" ${i===n-1?'disabled':''} aria-label="Mover después">›</button></div></div>`).join('');
+  b.innerHTML=formMedia.map((m,i)=>`<div class="mt2"><div class="mt">${m.t==='vid'?`<video src="${m.u}" muted preload="metadata"></video><i class="vplay sm">${ic('play')}</i>`:`<img src="${m.u}" alt="">`}${i===0?'<em>Portada</em>':''}${m.c?`<b class="mcb">${esc(m.c)}</b>`:''}<button type="button" data-act="mrm:${i}" aria-label="Quitar archivo">${ic('x')}</button></div>
+   <div class="mtb"><button type="button" data-act="mmv:${i}:-1" ${i===0?'disabled':''} aria-label="Mover antes">‹</button>${m.t==='img'?`<button type="button" class="aj" data-act="edit:${i}">Ajustar</button>`:'<span class="aj"></span>'}<button type="button" data-act="mmv:${i}:1" ${i===n-1?'disabled':''} aria-label="Mover después">›</button></div></div>`).join('');
+  renderColPhotos();
 }
 /* ---- editor de foto: mover, acercar, girar, centrar y fondo (se hornea en cuadrado 1:1) ---- */
 let ED=null;
@@ -2534,6 +2555,7 @@ document.addEventListener('click',e=>{
    case 'newstore':openNewStore();break;
    case 'gal':{const q=P(+x);const v=$('#gview');if(q&&v){const L=pmedia(q);v.innerHTML=mediaEl(L[+y]||L[0],true)}document.querySelectorAll('.th2').forEach((t,k)=>t.classList.toggle('on',k===+y));break}
    case 'mmv':mediaMove(+x,+y);break;
+   case 'cph':{const e=$('#p-cn'+x),n=e?e.value.trim():'',m=formMedia[+y];if(n&&m){if(m.c===n)delete m.c;else m.c=n;renderThumbs()}break}
    case 'edit':openEd(+x);break;
    case 'edctr':case 'edfill':case 'edfit':case 'edrot':case 'edbg':edAct(a,x);break;
    case 'edcancel':edClose();break;
@@ -2593,12 +2615,12 @@ document.addEventListener('input',e=>{
   if(t.id==='q'){S.q=t.value;renderGrid();return}
   if(t.dataset&&t.dataset.bind)setPath(t.dataset.bind,t.value);
   if(t.id==='p-old'||t.id==='p-pr')oldHint();
+  if(t.id&&/^p-cn\d$/.test(t.id))renderColPhotos();
 });
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.id==='p-media'){addMedia(t.files);t.value='';return}
   if(t.classList&&t.classList.contains('mcsel')){const m=formMedia[+t.dataset.i];if(m){if(t.value)m.c=t.value;else delete m.c}return}
-  if(t.id&&/^p-cn\d$/.test(t.id)){renderThumbs();return}
   if(t.id==='cart-city'){S.city=t.value;openCart()}
   else if(t.id==='c-city'){saveDraft();S.city=t.value;openCheckout()}
   else if(t.dataset&&t.dataset.vp){const v=myV(),q=P(+t.dataset.vp),val=+t.value;if(!val||val<q.base){toast('Tu precio no puede ser menor al precio base ('+money(q.base)+')')}else{v.prices[q.id]=val;if(val>q.price)toast('Ojo: tu precio es mayor al de la tienda principal');}rp()}
