@@ -1023,6 +1023,9 @@ body{padding-top:env(safe-area-inset-top)}
   .legal{grid-template-columns:1fr 1fr}
   .legal button{font-size:12px;padding:10px 12px}
 }
+/* la cinta de avisos siempre se mueve sola (aunque el celular tenga "reducir movimiento") */
+@media(prefers-reduced-motion:reduce){.ticker .tk{animation:tick 55s linear infinite!important}}
+.ticker .tk{will-change:transform}
 
 </style>
 </head>
