@@ -1079,6 +1079,10 @@ body{padding-top:env(safe-area-inset-top)}
 /* editor de foto en cuadrado 1:1 (igual a como se ve en la tienda) */
 .edframe{aspect-ratio:1/1;max-width:min(100%,56vh);margin:0 auto}
 .edguide{top:0;bottom:0;border:2px dashed rgba(0,145,250,.9);box-shadow:none;border-radius:inherit}
+/* app instalada en iPhone: anclar la pantalla completa (evita que el contenido suba bajo la barra de estado y quede hueco abajo) */
+html{overflow:hidden;overscroll-behavior:none;width:100%;height:100%}
+body{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:auto;padding-top:env(safe-area-inset-top);overflow:hidden;overscroll-behavior:none}
+.view{height:100%}
 
 </style>
 </head>
@@ -2876,6 +2880,9 @@ async function boot(){
   }
 }
 boot();
+/* iPhone (app instalada): si el sistema desplaza la página, la devolvemos a su sitio */
+(function(){const fix=()=>{try{if(window.scrollY||document.documentElement.scrollTop||document.body.scrollTop){window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0}}catch(_){}};
+ ['scroll','resize','orientationchange','pageshow','focus'].forEach(ev=>window.addEventListener(ev,fix,{passive:true}));document.addEventListener('visibilitychange',fix);setTimeout(fix,300);setTimeout(fix,1200)})();
 
 </script>
 </body>
