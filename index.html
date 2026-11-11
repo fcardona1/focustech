@@ -1666,9 +1666,9 @@ function loginHTML(){
     <div class="lg-brand"><img src="${IMG.HB}" alt="FOCUSTECH" class="lg-logo"></div>
     <span class="lg-tape"><i></i>Panel de control</span>
     <h1>Bienvenido <b>de nuevo</b></h1><p class="sub">Aquí ves tus pedidos, tu stock, tus pagos y tus envíos.</p>
-    <form id="f-login"><div class="fld"><label for="l-e">Correo</label><input id="l-e" type="email" autocomplete="username" placeholder="tucorreo@ejemplo.com" required></div>
+    <form id="f-login"><div class="fld"><label for="l-e">Correo</label><input id="l-e" type="email" autocomplete="username" placeholder="tucorreo@ejemplo.com" value="${esc((()=>{try{return localStorage.getItem('ft_email')||''}catch(_){return ''}})())}" required></div>
     <div class="fld"><label for="l-p">Contraseña</label><div class="pw"><input id="l-p" type="password" autocomplete="current-password" placeholder="••••••••" required><button type="button" data-act="eye" aria-label="Mostrar u ocultar contraseña">${ic('eye')}</button></div></div>
-    <label class="chk"><input type="checkbox" id="l-r"> Recordarme en este dispositivo</label><p class="err" id="l-err"></p>
+    <label class="chk"><input type="checkbox" id="l-r" checked> Mantener mi sesión iniciada</label><p class="err" id="l-err"></p>
     <button class="btn sig block lgbtn" type="submit"><span>Ingresar al panel</span></button></form>
     ${PROD?'':'<p class="lgdemo">Dueño: andres@focustech.co · focus2026<br>Vendedora: laura@vendedor.co · laura2026</p>'}
    </div>
@@ -2589,6 +2589,7 @@ async function prodLogin(){
   try{
     const j=await authFetch('/auth/v1/token?grant_type=password',{email:em,password:pw});setAuth(j,rem);
     if(!isStaff()&&!AUTH.vendor){authClear();S.user=null;er.textContent='Esta cuenta no tiene acceso al panel.';bt.disabled=false;return}
+    try{localStorage.setItem('ft_email',em)}catch(_){}
     await loadPrivate();S.tab='resumen';S.anim=true;rp(true);
   }catch(e){bt.disabled=false;er.textContent='Correo o contraseña incorrectos.'}
 }
@@ -2598,7 +2599,7 @@ async function restoreAuth(){
   try{const t=JSON.parse(raw),p=b64j(t.a.split('.')[1]);
     if(p.exp-60<Date.now()/1e3){const j=await authFetch('/auth/v1/token?grant_type=refresh_token',{refresh_token:t.r});setAuth(j,rem)}
     else{AUTH={token:t.a,refresh:t.r,exp:p.exp,email:p.email,role:(p.app_metadata||{}).role||null,vendor:(p.app_metadata||{}).vendor||null,name:(p.user_metadata||{}).full_name||(p.user_metadata||{}).name||(p.email||'').split('@')[0],remember:rem};S.user={email:AUTH.email,name:AUTH.name.split(' ')[0],admin:AUTH.role==='admin',vendor:AUTH.vendor||null};applyMeta(p.user_metadata||{})}
-  }catch(e){authClear();S.user=null}
+  }catch(e){if(e instanceof TypeError){AUTH=null;S.user=null}else{authClear();S.user=null}}  /* sin internet: no borra la sesión guardada */
 }
 async function prodVendor(f){
   const code=$('#vn-c').value.trim().toLowerCase(),em=$('#vn-e').value.trim().toLowerCase(),nm=$('#vn-n').value.trim(),pw=$('#vn-p').value,er=$('#vn-err');
@@ -2672,6 +2673,7 @@ function askPush(){
 }
 /* ---- arranque ---- */
 async function boot(){
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(_){}  /* pide que el celular no borre la sesión guardada */
   try{const d=localStorage.getItem('ft_dens');if(d==='s'||d==='m'||d==='l')S.dens=d}catch(_){}
   window.addEventListener('hashchange',()=>{closeModal();route()});
   window.addEventListener('popstate',()=>{closeModal();route()});
