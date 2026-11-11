@@ -2638,6 +2638,8 @@ function baseline(){
   if(isStaff()){const sl=slices();Object.keys(sl).forEach(k=>H[k]=J(sl[k].v));S.orders.forEach(o=>H['o'+o.id]=oStrip(o));S.notifs.forEach(n=>H['n'+n.id]=J(n));S.citas.forEach(c=>H['c'+c.id]=J(c))}
   const v=myV&&myV();if(v)H.vp=J(v.prices||{});
 }
+let lastFail=0;
+function syncFail(e){const t=Date.now();if(t-lastFail<20000)return;lastFail=t;const m=String((e&&e.message)||e||'');toast(/Failed to fetch|NetworkError|Load failed/i.test(m)?'Sin conexión: tus cambios se guardarán cuando vuelva internet.':'No se pudo guardar en la nube. Reintentando… '+m.slice(0,90))}
 async function syncTick(){
   if(busy||!AUTH)return;busy=true;
   try{
@@ -2652,7 +2654,7 @@ async function syncTick(){
     }else if(AUTH.vendor){
       const v=myV();if(v){const h=J(v.prices||{});if(H.vp!==h){await rpc('set_vendor_prices',{vcode:v.code,prices:v.prices||{}});H.vp=h}}
     }
-  }catch(e){console.warn('sync',e)}finally{busy=false}
+  }catch(e){console.warn('sync',e);syncFail(e)}finally{busy=false}
 }
 /* ---- avisos nuevos: revisar cada 15 s ---- */
 async function pollTick(){
@@ -2667,6 +2669,12 @@ async function pollTick(){
       cts.forEach(r=>{if(!S.citas.some(c=>c.id===r.id)){const c={...r.data,id:r.id};S.citas.push(c);H['c'+c.id]=J(c);changed=true}});
       sk.forEach(r=>{const p=S.products.find(x=>x.id===+r.pid);if(p&&lastStock[p.id]!==r.n&&p.stock===lastStock[p.id]){p.stock=r.n;lastStock[p.id]=r.n;changed=true}});
       if(st[0])mapStats(st[0].v);
+      try{const rp=await sel('store','select=k,v&k=eq.products'),R=rp[0]&&rp[0].v;
+        if(Array.isArray(R)&&J(R)!==H.products){
+          const mine=J(slices().products.v);
+          if(mine===H.products){const sk2={};S.products.forEach(p=>sk2[p.id]=p.stock);sk.forEach(r=>sk2[+r.pid]=r.n);S.products=R.map(p=>({...p,stock:sk2[p.id]==null?0:sk2[p.id]}));lastStock={};S.products.forEach(p=>lastStock[p.id]=p.stock);H.products=J(R);changed=true}
+          else{let base=[];try{base=JSON.parse(H.products||'[]')}catch(_){}const known=new Set(base.map(x=>x.id));R.forEach(p=>{if(!known.has(p.id)&&!S.products.some(x=>x.id===p.id)){const q=sk.find(r=>+r.pid===p.id);S.products.push({...p,stock:q?q.n:0});if(q)lastStock[p.id]=q.n;changed=true}})}
+        }}catch(_){}
     }else if(AUTH.vendor){
       const ords=await sel('orders','select=id,data,created_at&order=id.desc&limit=60');
       ords.forEach(r=>{if(!S.orders.some(o=>o.id===r.id)){const o={...r.data,id:r.id,d:dAgo(r.created_at)};S.orders.push(o);changed=true}});
