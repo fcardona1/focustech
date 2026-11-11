@@ -1026,6 +1026,15 @@ body{padding-top:env(safe-area-inset-top)}
 /* la cinta de avisos siempre se mueve sola (aunque el celular tenga "reducir movimiento") */
 @media(prefers-reduced-motion:reduce){.ticker .tk{animation:tick 55s linear infinite!important}}
 .ticker .tk{will-change:transform}
+/* v4: franja de confianza que se desplaza sola, pequeña */
+.tsin{display:block;overflow:hidden;border-radius:14px;box-shadow:0 10px 22px -18px rgba(0,60,160,.7)}
+.tsm{display:inline-flex;white-space:nowrap;animation:tick 38s linear infinite!important;will-change:transform}
+.tsin:hover .tsm{animation-play-state:paused}
+.tc{flex:none;padding:6px 22px;gap:9px;animation:none}
+.tc::before{display:none}
+.tc::after{content:"";width:5px;height:5px;border-radius:50%;background:#7FB6FF;margin-left:22px;align-self:center}
+.tci{width:26px;height:26px;border-radius:9px}.tci .ico{width:14px;height:14px}
+.tc b{font-size:12px}.tc small{font-size:10.5px}
 
 </style>
 </head>
@@ -1497,7 +1506,8 @@ const ticker=()=>{
 };
 function trustHTML(){
   const it=[['shield','Garantía directa','De 3 meses a 1 año'],['card','Pago seguro',PROD&&!CFG.online?'Transferencia o contra entrega':'Wompi, Bold o transferencia'],['truck','Envío gratis en Cali','Y contra entrega'],['calendar','Showroom','Agenda tu cita']];
-  return `<section class="tstrip" aria-label="Por qué comprar aquí"><div class="tsin">${it.map(([i,t,d],k)=>`<div class="tc" style="animation-delay:${k*90}ms"><span class="tci">${ic(i)}</span><div><b>${t}</b><small>${d}</small></div></div>`).join('')}</div></section>`;
+  const row=it.map(([i,t,d])=>`<div class="tc"><span class="tci">${ic(i)}</span><div><b>${t}</b><small>${d}</small></div></div>`).join('');
+  return `<section class="tstrip" aria-label="Por qué comprar aquí"><div class="tsin"><div class="tsm">${row}${row}</div></div></section>`;
 }
 function combosHTML(){
   const cb=activeCombos();if(!cb.length)return '';
